@@ -1,10 +1,46 @@
-const fs = require('fs');
-const Promise = require('bluebird')
-const { auth } = require('./config/config.js');
-const T = auth();
-var stream = T.stream('statuses/filter', { track: 'mfer', language: 'en' })
+const { userClientAuth } = require("./config/config.js");
+const { Worker, isMainThread, parentPort } = require("worker_threads");
+const worker = new Worker("./twitter_worker.js");
+const userClient = userClientAuth();
+const authorIdQueue = [];
 
-stream.on('tweet', async function (tweet) {
-    console.log("Starting RKO Reply Tweet")
+async function sendTweet() {
+    while (true) {
+        console.log(authorIdQueue)
+        const chineasePhrase = "we're just getting started 操你妈逼";
+        const englishPhrase = "we're just getting started mfer";
+        const spanishPhrase = "we're just getting started hijo de tu puta madre";
 
-})
+        if (authorIdQueue.length > 0) {
+            const currentTweetObj = authorIdQueue.shift();
+            let mferPhrase;
+            if (currentTweetObj.isChinease){
+              mferPhrase = chineasePhrase
+            } else if (currentTweetObj.isSpanish) {
+              mferPhrase = spanishPhrase;
+            } else {
+              mferPhrase = englishPhrase;
+            }
+
+            await userClient.v1.reply(
+              `${mferPhrase}`,
+              currentTweetObj.tweetId
+            );
+        }
+        
+        await new Promise((r) => setTimeout(r, 20000));
+  }
+}
+
+function addTweetId(tweetId) {
+  authorIdQueue.push(tweetId);
+}
+
+
+worker.on("message", (msg) => {
+  console.log("message recieved")
+  addTweetId(msg);
+});
+
+sendTweet();
+

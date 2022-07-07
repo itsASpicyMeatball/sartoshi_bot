@@ -1,19 +1,24 @@
-
-const Twit = require('twit')
+const { TwitterApi } = require("twitter-api-v2");
 const dotenv = require("dotenv")
 dotenv.config()
 
 // auth methods
 const auth = () => {
-    let secret = {
-        consumer_key: process.env.API_KEY,
-        consumer_secret: process.env.SECRET_KEY,
-        access_token: process.env.ACCESS_TOKEN,
-        access_token_secret: process.env.ACCESS_TOKEN_SECRET
-    }
-
-    var client = new Twit(secret);
-    return client;
+    const appOnlyClient = new TwitterApi(process.env.BEARER_TOKEN);
+    return appOnlyClient.readWrite;
 }
 
-module.exports = { auth };
+const userClientAuth = () => {
+    const config = {
+      appKey: process.env.API_KEY,
+      appSecret: process.env.SECRET_KEY,
+      // Following access tokens are not required if you are
+      // at part 1 of user-auth process (ask for a request token)
+      // or if you want a app-only client (see below)
+      accessToken: process.env.ACCESS_TOKEN,
+      accessSecret: process.env.ACCESS_TOKEN_SECRET,
+    };
+  const appOnlyClient = new TwitterApi(config);
+  return appOnlyClient.readWrite;
+};
+module.exports = { auth, userClientAuth };
