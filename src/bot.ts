@@ -1,8 +1,8 @@
-const { userClientAuth } = require("./config/config.js");
-const { Worker, isMainThread, parentPort } = require("worker_threads");
-const worker = new Worker("./twitter_worker.js");
+const { userClientAuth } = require("../config/config.js");
+const { Worker, isMainThread } = require("worker_threads");
+const worker = new Worker("./src/twitter_worker.ts");
 const userClient = userClientAuth();
-const authorIdQueue = [];
+const authorIdQueue:number[] = [];
 
 async function sendTweet() {
     while (true) {

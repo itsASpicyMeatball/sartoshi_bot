@@ -1,7 +1,7 @@
 const fs = require("fs");
 const Promise = require("bluebird");
-const { auth } = require("./config/config.js");
-const { findId, saveId } = require("./database_queries");
+const { auth } = require("../config/config.js");
+const { findId, saveId } = require("./src/database_queries.ts");
 const client = auth();
 
 const { parentPort } = require("worker_threads");
