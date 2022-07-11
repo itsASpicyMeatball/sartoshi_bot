@@ -1,4 +1,3 @@
-"use strict";
 var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
     function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
     return new (P || (P = Promise))(function (resolve, reject) {
@@ -8,9 +7,9 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
         step((generator = generator.apply(thisArg, _arguments || [])).next());
     });
 };
-const { userClientAuth } = require("../config/config.js");
-const { Worker, isMainThread } = require("worker_threads");
-const worker = new Worker("./src/twitter_worker.ts");
+import { userClientAuth } from "./config/config.js";
+import { Worker } from "worker_threads";
+const worker = new Worker("./dist/twitter_worker.js");
 const userClient = userClientAuth();
 const authorIdQueue = [];
 function sendTweet() {

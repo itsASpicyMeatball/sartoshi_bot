@@ -1,8 +1,10 @@
-const { userClientAuth } = require("../config/config.js");
-const { Worker, isMainThread } = require("worker_threads");
-const worker = new Worker("./src/twitter_worker.ts");
+import {userClientAuth} from "./config/config.js";
+import { Worker} from "worker_threads";
+const worker = new Worker("./dist/twitter_worker.js");
 const userClient = userClientAuth();
-const authorIdQueue:number[] = [];
+
+const authorIdQueue:(any)[] = [];
+
 
 async function sendTweet() {
     while (true) {
@@ -12,7 +14,7 @@ async function sendTweet() {
         const spanishPhrase = "we're just getting started hijo de tu puta madre";
 
         if (authorIdQueue.length > 0) {
-            const currentTweetObj = authorIdQueue.shift();
+            const currentTweetObj: any = authorIdQueue.shift();
             let mferPhrase;
             if (currentTweetObj.isChinease){
               mferPhrase = chineasePhrase
@@ -32,7 +34,7 @@ async function sendTweet() {
   }
 }
 
-function addTweetId(tweetId) {
+function addTweetId(tweetId:any) {
   authorIdQueue.push(tweetId);
 }
 

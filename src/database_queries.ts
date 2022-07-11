@@ -1,8 +1,9 @@
-const pkg = require("pg");
-require("dotenv").config();
+import pkg from "pg";
+import * as dotenv from "dotenv";
+dotenv.config();
 
 const { Pool } = pkg;
-let pgClient;
+let pgClient: any;
 if (process.env.NODE_ENV === "development") {
   pgClient = new Pool({
     connectionString: process.env.DEV_DATABASE_URL,
@@ -11,7 +12,6 @@ if (process.env.NODE_ENV === "development") {
   pgClient = new Pool({
     connectionString: process.env.DATABASE_URL,
     ssl: {
-      require: true,
       rejectUnauthorized: false,
     },
   });
@@ -19,17 +19,18 @@ if (process.env.NODE_ENV === "development") {
 
 pgClient.connect();
 
-async function findId(author_id) {
+async function findId(author_id:number) {
     const query = `SELECT twitter_id from users where twitter_id=$1`
 
     const response = await pgClient.query(query, [author_id]);
     return response.rows.length > 0;
 }
 
-async function saveId(author_id) {
+async function saveId(author_id:number) {
     const query = `INSERT INTO users (twitter_id, "createdAt", "updatedAt") VALUES ($1, NOW(), NOW())`;
 
     const response = await pgClient.query(query, [author_id]);
     return 1;
 }
-module.exports = { findId, saveId };
+
+export {findId, saveId};

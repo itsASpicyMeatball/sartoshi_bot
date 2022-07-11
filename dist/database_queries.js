@@ -1,4 +1,3 @@
-"use strict";
 var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
     function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
     return new (P || (P = Promise))(function (resolve, reject) {
@@ -8,8 +7,9 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
         step((generator = generator.apply(thisArg, _arguments || [])).next());
     });
 };
-const pkg = require("pg");
-require("dotenv").config();
+import pkg from "pg";
+import * as dotenv from "dotenv";
+dotenv.config();
 const { Pool } = pkg;
 let pgClient;
 if (process.env.NODE_ENV === "development") {
@@ -21,7 +21,6 @@ else {
     pgClient = new Pool({
         connectionString: process.env.DATABASE_URL,
         ssl: {
-            require: true,
             rejectUnauthorized: false,
         },
     });
@@ -41,4 +40,4 @@ function saveId(author_id) {
         return 1;
     });
 }
-module.exports = { findId, saveId };
+export { findId, saveId };

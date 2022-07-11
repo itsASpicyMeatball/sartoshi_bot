@@ -1,16 +1,16 @@
-const fs = require("fs");
-const Promise = require("bluebird");
-const { auth } = require("../config/config.js");
-const { findId, saveId } = require("./src/database_queries.ts");
+import {auth} from "./config/config.js";
+import {findId, saveId} from "./database_queries.js";
 const client = auth();
 
-const { parentPort } = require("worker_threads");
-PHRASES = ["hop in mfer", "mfer", "mfers", "chinga tu madre", "操你妈逼"];
+import { parentPort } from "worker_threads";
+
+const PHRASES = ["hop in mfer", "mfer", "mfers", "chinga tu madre", "操你妈逼"];
+
 async function listenOnStream() {
   const rules = await client.v2.streamRules();
   if (rules.data?.length) {
     await client.v2.updateStreamRules({
-      delete: { ids: rules.data.map((rule) => rule.id) },
+      delete: { ids: rules.data.map((rule:any) => rule.id) },
     });
   }
 
@@ -30,7 +30,7 @@ async function listenOnStream() {
   // Enable auto reconnect
   stream.autoReconnect = true;
 
-  stream.on("data event content", async (tweet) => {
+  stream.on("data event content", async (tweet:any) => {
     // Ignore RTs or self-sent tweets
     const optInText = "hop in mfer";
     const author_id = parseInt(tweet.data.author_id);
@@ -53,7 +53,7 @@ async function listenOnStream() {
         text.includes("chinga tu madre"))
     ) {
       console.log(tweet);
-      parentPort.postMessage({
+      parentPort!.postMessage({
         tweetId: tweetId,
         isChinease: isChinease,
         isSpanish: isSpanish,

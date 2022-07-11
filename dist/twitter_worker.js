@@ -1,4 +1,3 @@
-"use strict";
 var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
     function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
     return new (P || (P = Promise))(function (resolve, reject) {
@@ -8,13 +7,11 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
         step((generator = generator.apply(thisArg, _arguments || [])).next());
     });
 };
-const fs = require("fs");
-const Promise = require("bluebird");
-const { auth } = require("../config/config.js");
-const { findId, saveId } = require("./src/database_queries.ts");
+import { auth } from "./config/config.js";
+import { findId, saveId } from "./database_queries.js";
 const client = auth();
-const { parentPort } = require("worker_threads");
-PHRASES = ["hop in mfer", "mfer", "mfers", "chinga tu madre", "操你妈逼"];
+import { parentPort } from "worker_threads";
+const PHRASES = ["hop in mfer", "mfer", "mfers", "chinga tu madre", "操你妈逼"];
 function listenOnStream() {
     var _a;
     return __awaiter(this, void 0, void 0, function* () {
