@@ -87,8 +87,6 @@ async function listenOnStream() {
         mferfy,
       });
     }
-
-    // Reply to tweet
   });
 }
 
