@@ -67,15 +67,17 @@ async function listenOnStream() {
       let mferfy = text.includes("mferfy");
       let imageBuffer;
       let imageUrl;
-      for (let i = 0; i < mediaArr.length; i++) {
-        console.log(mediaArr);
-        const mediaUrl = mediaArr[i].url;
-        const imageResponse = await fetch(mediaUrl);
-        const imageArrBuffer = await imageResponse.arrayBuffer();
-        const buffer = Buffer.from(imageArrBuffer);
-        imageBuffer = buffer;
-        imageUrl = mediaArr[i].url;
-        break;
+      if (mediaArr) {
+        for (let i = 0; i < mediaArr.length; i++) {
+          console.log(mediaArr);
+          const mediaUrl = mediaArr[i].url;
+          const imageResponse = await fetch(mediaUrl);
+          const imageArrBuffer = await imageResponse.arrayBuffer();
+          const buffer = Buffer.from(imageArrBuffer);
+          imageBuffer = buffer;
+          imageUrl = mediaArr[i].url;
+          break;
+        }
       }
 
       parentPort!.postMessage({
