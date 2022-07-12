@@ -86,6 +86,7 @@ export async function maskify(buffer: any, imageUrl: any){
   console.log("Maskify starting...");
   await faceDetectionNet.loadFromDisk("./weights");
   await faceapi.nets.faceLandmark68Net.loadFromDisk("./weights");
+  await faceapi.nets.tinyFaceDetector.loadFromDisk("./weights");
   console.log("banana")
   const img = (await canvas.loadImage(imageUrl)) as any;
   let imageBuffer = buffer;
