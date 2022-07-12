@@ -3,21 +3,43 @@
   "version": "1.0.0",
   "description": "",
   "main": "index.js",
+  "type": "module",
   "scripts": {
-    "start": "node bot.js",
+    "start": "node ./dist/bot.js",
+    "tsc": "tsc",
+    "postinstall": "npm run tsc",
+    "dev": "ts-node-dev --respawn --pretty --transpile-only bot.ts",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "author": "",
   "license": "ISC",
   "dependencies": {
+    "@tensorflow/tfjs-node": "^3.18.0",
+    "@types/node-fetch": "^2.6.2",
+    "@types/sharp": "^0.30.4",
     "bluebird": "^3.7.2",
+    "canvas": "^2.9.3",
     "dotenv": "^10.0.0",
+    "esm": "^3.2.25",
+    "face-api.js": "^0.22.2",
+    "fs": "^0.0.1-security",
+    "node-fetch": "^3.2.6",
     "pg": "^8.7.3",
     "pg-hstore": "^2.3.4",
     "sequelize": "^6.21.2",
     "sequelize-cli": "^6.4.1",
+    "sharp": "^0.30.7",
     "twit": "^2.2.11",
     "twitter": "^1.7.1",
-    "twitter-api-v2": "^1.12.3"
+    "twitter-api-v2": "^1.12.3",
+    "worker-threads": "^1.0.0"
+  },
+  "devDependencies": {
+    "@types/node": "^18.0.3",
+    "@types/pg": "^8.6.5",
+    "@typescript-eslint/parser": "^5.30.5",
+    "ts-node": "^10.8.2",
+    "ts-node-dev": "^2.0.0",
+    "typescript": "^4.7.4"
   }
 }
