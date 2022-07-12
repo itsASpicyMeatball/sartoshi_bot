@@ -44,9 +44,15 @@ const getOverlayValues = (landmarks: any) => {
   };
 };
 
-const getRandomMferBuffer = async () => {
+const getRandomMferBuffer = async (smilesssOrMfer:any) => {
+  let imagePath:string = "";
+  if (smilesssOrMfer === 0) {
+    imagePath = "./images/mfer.png";
+  } else if (smilesssOrMfer === 1) {
+    imagePath = "./images/smilesss.png"
+  }
   const imageBuffer = await fsp.readFile(
-    "./images/mfer.png"
+    imagePath
   );
   return imageBuffer;
 };
@@ -82,13 +88,13 @@ const scaleMfer = async (imgBuffer:  any, width: number) => {
   return scaledMfer;
 }
 
-export async function maskify(buffer: any, imageUrl: any){
+export async function maskify(buffer: any, imageUrl: any, smilesssOrMfer:any){
   try {
     console.log("Maskify starting...");
     await faceDetectionNet.loadFromDisk("./weights");
     await faceapi.nets.faceLandmark68Net.loadFromDisk("./weights");
     await faceapi.nets.tinyFaceDetector.loadFromDisk("./weights");
-    console.log("banana")
+    
     const img = (await canvas.loadImage(imageUrl)) as any;
     let imageBuffer = buffer;
   
@@ -103,7 +109,7 @@ export async function maskify(buffer: any, imageUrl: any){
       const values = getOverlayValues(detection.landmarks);
       console.log(values)
       const rotatedMfer = await rotateImage(
-        await getRandomMferBuffer(),
+        await getRandomMferBuffer(smilesssOrMfer),
         values.angle
       );
       const scaledMfer = await scaleMfer(rotatedMfer, Math.floor(values.width));

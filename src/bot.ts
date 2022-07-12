@@ -23,13 +23,18 @@ async function sendTweet() {
       } else {
         mferPhrase = englishPhrase;
       }
-      if (currentTweetObj.imageBuffer && currentTweetObj.mferfy) {
+      if (currentTweetObj.imageBuffer && (currentTweetObj.mferfy || currentTweetObj.smilesssfy)) {
+        let smilesssOrMfer = 0;
+        if (currentTweetObj.smilesssfy) {
+          smilesssOrMfer = 1
+        }
         const mergedImageBuffer = await maskify(
           currentTweetObj.imageBuffer,
-          currentTweetObj.imageUrl
+          currentTweetObj.imageUrl,
+          smilesssOrMfer
         );
         if (mergedImageBuffer === -1) {
-          await userClient.v1.reply(`There was an issue mferfying your image`, currentTweetObj.tweetId);
+          await userClient.v1.reply(`There was an issue fying your image`, currentTweetObj.tweetId);
         } else {
           const mediaIds = await userClient.v1.uploadMedia(mergedImageBuffer, {
             mimeType: "png",
