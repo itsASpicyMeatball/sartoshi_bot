@@ -67,27 +67,31 @@ async function listenOnStream() {
       let mferfy = text.includes("mferfy");
       let imageBuffer;
       let imageUrl;
-      if (mediaArr) {
-        for (let i = 0; i < mediaArr.length; i++) {
-          console.log(mediaArr);
-          const mediaUrl = mediaArr[i].url;
-          const imageResponse = await fetch(mediaUrl);
-          const imageArrBuffer = await imageResponse.arrayBuffer();
-          const buffer = Buffer.from(imageArrBuffer);
-          imageBuffer = buffer;
-          imageUrl = mediaArr[i].url;
-          break;
+      try {
+        if (mediaArr) {
+          for (let i = 0; i < mediaArr.length; i++) {
+            console.log(mediaArr);
+            const mediaUrl = mediaArr[i].url;
+            const imageResponse = await fetch(mediaUrl);
+            const imageArrBuffer = await imageResponse.arrayBuffer();
+            const buffer = Buffer.from(imageArrBuffer);
+            imageBuffer = buffer;
+            imageUrl = mediaArr[i].url;
+            break;
+          }
         }
+  
+        parentPort!.postMessage({
+          tweetId: tweetId,
+          isChinease: isChinease,
+          isSpanish: isSpanish,
+          imageBuffer: imageBuffer,
+          imageUrl: imageUrl,
+          mferfy,
+        });
+      } catch (error) {
+        console.log(error)
       }
-
-      parentPort!.postMessage({
-        tweetId: tweetId,
-        isChinease: isChinease,
-        isSpanish: isSpanish,
-        imageBuffer: imageBuffer,
-        imageUrl: imageUrl,
-        mferfy,
-      });
     }
   });
 }
