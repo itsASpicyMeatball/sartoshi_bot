@@ -75,6 +75,7 @@ export function maskify(buffer, imageUrl) {
         console.log("Maskify starting...");
         yield faceDetectionNet.loadFromDisk("./weights");
         yield faceapi.nets.faceLandmark68Net.loadFromDisk("./weights");
+        yield faceapi.nets.tinyFaceDetector.loadFromDisk("./weights");
         console.log("banana");
         const img = (yield canvas.loadImage(imageUrl));
         let imageBuffer = buffer;

@@ -86,7 +86,6 @@ function listenOnStream() {
                     mferfy,
                 });
             }
-            // Reply to tweet
         }));
     });
 }
