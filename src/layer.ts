@@ -83,40 +83,44 @@ const scaleMfer = async (imgBuffer:  any, width: number) => {
 }
 
 export async function maskify(buffer: any, imageUrl: any){
-  console.log("Maskify starting...");
-  await faceDetectionNet.loadFromDisk("./weights");
-  await faceapi.nets.faceLandmark68Net.loadFromDisk("./weights");
-  await faceapi.nets.tinyFaceDetector.loadFromDisk("./weights");
-  console.log("banana")
-  const img = (await canvas.loadImage(imageUrl)) as any;
-  let imageBuffer = buffer;
-
-  const scale = img.width / img.naturalWidth;
-  console.log(img);
-  const detections = await faceapi
-    .detectAllFaces(img, getFaceDetectorOptions(faceDetectionNet))
-    .withFaceLandmarks();
-
-  for (let i = 0; i < detections.length; i++) {
-    const detection = detections[i];
-    const values = getOverlayValues(detection.landmarks);
-    console.log(values)
-    const rotatedMfer = await rotateImage(
-      await getRandomMferBuffer(),
-      values.angle
-    );
-    const scaledMfer = await scaleMfer(rotatedMfer, Math.floor(values.width));
-    // @ts-ignore: Unreachable code error
-    imageBuffer = await mergeImages(
-      imageBuffer,
-      scaledMfer,
-      Math.floor(values.leftOffset * scale),
-      Math.floor(values.topOffset * scale)
-    );
+  try {
+    console.log("Maskify starting...");
+    await faceDetectionNet.loadFromDisk("./weights");
+    await faceapi.nets.faceLandmark68Net.loadFromDisk("./weights");
+    await faceapi.nets.tinyFaceDetector.loadFromDisk("./weights");
+    console.log("banana")
+    const img = (await canvas.loadImage(imageUrl)) as any;
+    let imageBuffer = buffer;
+  
+    const scale = img.width / img.naturalWidth;
+    console.log(img);
+    const detections = await faceapi
+      .detectAllFaces(img, getFaceDetectorOptions(faceDetectionNet))
+      .withFaceLandmarks();
+  
+    for (let i = 0; i < detections.length; i++) {
+      const detection = detections[i];
+      const values = getOverlayValues(detection.landmarks);
+      console.log(values)
+      const rotatedMfer = await rotateImage(
+        await getRandomMferBuffer(),
+        values.angle
+      );
+      const scaledMfer = await scaleMfer(rotatedMfer, Math.floor(values.width));
+      // @ts-ignore: Unreachable code error
+      imageBuffer = await mergeImages(
+        imageBuffer,
+        scaledMfer,
+        Math.floor(values.leftOffset * scale),
+        Math.floor(values.topOffset * scale)
+      );
+    }
+    const finalBuffer = await outputFile(imageBuffer)
+    console.log("models loaded");
+    return finalBuffer;
+  } catch (error) {
+    return -1;
   }
-  const finalBuffer = await outputFile(imageBuffer)
-  console.log("models loaded");
-  return finalBuffer
 }
 
 

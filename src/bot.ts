@@ -28,12 +28,16 @@ async function sendTweet() {
           currentTweetObj.imageBuffer,
           currentTweetObj.imageUrl
         );
-        const mediaIds = await userClient.v1.uploadMedia(mergedImageBuffer, {
-          mimeType: "png",
-        });
-        await userClient.v1.reply(`${mferPhrase}`, currentTweetObj.tweetId, {
-          media_ids: mediaIds,
-        });
+        if (mergedImageBuffer === -1) {
+          await userClient.v1.reply(`There was an issue mferfying your image`, currentTweetObj.tweetId);
+        } else {
+          const mediaIds = await userClient.v1.uploadMedia(mergedImageBuffer, {
+            mimeType: "png",
+          });
+          await userClient.v1.reply(`${mferPhrase}`, currentTweetObj.tweetId, {
+            media_ids: mediaIds,
+          });
+        }
       } else {
         await userClient.v1.reply(`${mferPhrase}`, currentTweetObj.tweetId);
       }
