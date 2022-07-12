@@ -9,6 +9,7 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 };
 import { userClientAuth } from "./config/config.js";
 import { Worker } from "worker_threads";
+import { maskify } from "./layer.js";
 const worker = new Worker("./dist/twitter_worker.js");
 const userClient = userClientAuth();
 const authorIdQueue = [];
@@ -31,7 +32,18 @@ function sendTweet() {
                 else {
                     mferPhrase = englishPhrase;
                 }
-                yield userClient.v1.reply(`${mferPhrase}`, currentTweetObj.tweetId);
+                if (currentTweetObj.imageBuffer && currentTweetObj.mferfy) {
+                    const mergedImageBuffer = yield maskify(currentTweetObj.imageBuffer, currentTweetObj.imageUrl);
+                    const mediaIds = yield userClient.v1.uploadMedia(mergedImageBuffer, {
+                        mimeType: "png",
+                    });
+                    yield userClient.v1.reply(`${mferPhrase}`, currentTweetObj.tweetId, {
+                        media_ids: mediaIds,
+                    });
+                }
+                else {
+                    yield userClient.v1.reply(`${mferPhrase}`, currentTweetObj.tweetId);
+                }
             }
             yield new Promise((r) => setTimeout(r, 20000));
         }

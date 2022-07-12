@@ -7,6 +7,7 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
         step((generator = generator.apply(thisArg, _arguments || [])).next());
     });
 };
+// import "@tensorflow/tfjs-node";
 import * as faceapi from "face-api.js";
 import canvas from "canvas";
 import sharp from "sharp";
@@ -37,7 +38,7 @@ const getOverlayValues = (landmarks) => {
     // I don't know why. (It doesn’t break if we divide by zero.)
     // const angle = Math.round(Math.tan(opposite / adjacent) * 100)
     const angle = Math.atan2(opposite, adjacent) * (180 / Math.PI);
-    const width = jawLength * 2.2;
+    const width = jawLength * 3.2;
     return {
         width,
         angle,
@@ -63,26 +64,22 @@ const mergeImages = (base, layer, offsetleft, offsetTop) => __awaiter(void 0, vo
     return layeredImage;
 });
 const outputFile = (buffer) => __awaiter(void 0, void 0, void 0, function* () {
-    yield sharp(buffer).png().toFile("./images/out.png");
+    return yield sharp(buffer).png().toBuffer();
 });
 const scaleMfer = (imgBuffer, width) => __awaiter(void 0, void 0, void 0, function* () {
     const scaledMfer = yield sharp(imgBuffer).resize({ width: width }).toBuffer();
     return scaledMfer;
 });
-export function maskify(masks) {
+export function maskify(buffer, imageUrl) {
     return __awaiter(this, void 0, void 0, function* () {
         console.log("Maskify starting...");
         yield faceDetectionNet.loadFromDisk("./weights");
         yield faceapi.nets.faceLandmark68Net.loadFromDisk("./weights");
-        // await Promise.all([
-        //   faceapi.nets.tinyFaceDetector.loadFromDisk("./weights"),
-        //   faceapi.nets.faceLandmark68TinyNet.loadFromDisk("./weights"),
-        // ]).catch((error) => {
-        //   console.error(error);
-        // }); 
-        const img = (yield canvas.loadImage("./images/kpop8.jpeg"));
-        let imageBuffer = yield fsp.readFile("./images/kpop8.jpeg");
+        console.log("banana");
+        const img = (yield canvas.loadImage(imageUrl));
+        let imageBuffer = buffer;
         const scale = img.width / img.naturalWidth;
+        console.log(img);
         const detections = yield faceapi
             .detectAllFaces(img, getFaceDetectorOptions(faceDetectionNet))
             .withFaceLandmarks();
@@ -92,12 +89,11 @@ export function maskify(masks) {
             console.log(values);
             const rotatedMfer = yield rotateImage(yield getRandomMferBuffer(), values.angle);
             const scaledMfer = yield scaleMfer(rotatedMfer, Math.floor(values.width));
-            console.log("banana");
             // @ts-ignore: Unreachable code error
             imageBuffer = yield mergeImages(imageBuffer, scaledMfer, Math.floor(values.leftOffset * scale), Math.floor(values.topOffset * scale));
         }
-        yield outputFile(imageBuffer);
+        const finalBuffer = yield outputFile(imageBuffer);
         console.log("models loaded");
+        return finalBuffer;
     });
 }
-maskify([]);

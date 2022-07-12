@@ -5,7 +5,6 @@ dotenv.config();
 // auth methods
 const auth = () => {
     const BEARER_TOKEN: any = process.env.BEARER_TOKEN;
-    console.log(BEARER_TOKEN);
     const appOnlyClient = new TwitterApi(BEARER_TOKEN);
     return appOnlyClient.readWrite;
 }
