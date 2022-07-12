@@ -12,6 +12,7 @@ async function sendTweet() {
     const chineasePhrase = "we're just getting started 操你妈逼";
     const englishPhrase = "we're just getting started mfer";
     const spanishPhrase = "we're just getting started hijo de tu puta madre";
+    const smilesssPhrase = "we're just getting started fam";
 
     if (authorIdQueue.length > 0) {
       const currentTweetObj: any = authorIdQueue.shift();
@@ -20,6 +21,8 @@ async function sendTweet() {
         mferPhrase = chineasePhrase;
       } else if (currentTweetObj.isSpanish) {
         mferPhrase = spanishPhrase;
+      } else if (currentTweetObj.smilesssfy) {
+        mferPhrase = smilesssPhrase;
       } else {
         mferPhrase = englishPhrase;
       }
