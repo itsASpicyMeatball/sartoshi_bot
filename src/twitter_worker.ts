@@ -48,8 +48,12 @@ async function listenOnStream() {
     const botId = 1543791826729058300;
     const idFound = await findId(author_id);
     const text = tweet.data.text.toLowerCase();
-    const isChinease = text.includes("操你妈逼") ? true : false;
-    const isSpanish = text.includes("chinga tu madre") ? true : false;
+    const isChinease = text.includes("操你妈逼")
+      ? "we're just getting started 操你妈逼"
+      : false;
+    const isSpanish = text.includes("chinga tu madre")
+      ? "we're just getting started mfer"
+      : false;
     const tweetId = tweet.data.id;
     const mediaArr = tweet.includes ? tweet.includes.media : [];
 
@@ -68,6 +72,8 @@ async function listenOnStream() {
     ) {
       let mferfy = text.includes("mferfy");
       let smilesssfy = text.includes("smilesssfy")
+        ? "we're just getting started hijo de tu puta madre"
+        : false;
       let imageBuffer;
       let imageUrl;
       try {
@@ -91,7 +97,7 @@ async function listenOnStream() {
           imageBuffer: imageBuffer,
           imageUrl: imageUrl,
           mferfy,
-          smilesssfy
+          smilesssfy,
         });
       } catch (error) {
         console.log(error);
