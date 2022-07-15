@@ -43,41 +43,41 @@ async function listenOnStream() {
   stream.autoReconnect = true;
 
   stream.on("data event content", async (tweet: any) => {
-    const optInText = "hop in mfer";
-    const author_id = parseInt(tweet.data.author_id);
-    const botId = 1543791826729058300;
-    const idFound = await findId(author_id);
-    const text = tweet.data.text.toLowerCase();
-    const isChinease = text.includes("操你妈逼")
-      ? "we're just getting started 操你妈逼"
-      : false;
-    const isSpanish = text.includes("chinga tu madre")
-      ? "we're just getting started mfer"
-      : false;
-    const tweetId = tweet.data.id;
-    const mediaArr = tweet.includes ? tweet.includes.media : [];
-    console.log(tweet)
-
-    if (text === optInText && !idFound) {
-      console.log(tweet);
-      await saveId(author_id);
-    } else if (
-      idFound &&
-      author_id != botId &&
-      (text.includes("mfer") ||
-        text.includes("mfers") ||
-        text.includes("操你妈逼") ||
-        text.includes("chinga tu madre") ||
-        text.includes("mferfy") ||
-        text.includes("smilesssfy"))
-    ) {
-      let mferfy = text.includes("mferfy");
-      let smilesssfy = text.includes("smilesssfy")
-        ? "we're just getting started fam"
+    try {
+      const optInText = "hop in mfer";
+      const author_id = parseInt(tweet.data.author_id);
+      const botId = 1543791826729058300;
+      const idFound = await findId(author_id);
+      const text = tweet.data.text.toLowerCase();
+      const isChinease = text.includes("操你妈逼")
+        ? "we're just getting started 操你妈逼"
         : false;
-      let imageBuffer;
-      let imageUrl;
-      try {
+      const isSpanish = text.includes("chinga tu madre")
+        ? "we're just getting started mfer"
+        : false;
+      const tweetId = tweet.data.id;
+      const mediaArr = tweet.includes ? tweet.includes.media : [];
+      console.log(tweet)
+  
+      if (text === optInText && !idFound) {
+        console.log(tweet);
+        await saveId(author_id);
+      } else if (
+        idFound &&
+        author_id != botId &&
+        (text.includes("mfer") ||
+          text.includes("mfers") ||
+          text.includes("操你妈逼") ||
+          text.includes("chinga tu madre") ||
+          text.includes("mferfy") ||
+          text.includes("smilesssfy"))
+      ) {
+        let mferfy = text.includes("mferfy");
+        let smilesssfy = text.includes("smilesssfy")
+          ? "we're just getting started fam"
+          : false;
+        let imageBuffer;
+        let imageUrl;
         if (mediaArr) {
           for (let i = 0; i < mediaArr.length; i++) {
             console.log(mediaArr);
@@ -90,7 +90,7 @@ async function listenOnStream() {
             break;
           }
         }
-
+  
         parentPort!.postMessage({
           tweetId: tweetId,
           isChinease: isChinease,
@@ -100,9 +100,10 @@ async function listenOnStream() {
           mferfy,
           smilesssfy,
         });
-      } catch (error) {
-        console.log(error);
+        
       }
+    } catch (error) {
+      console.log(error)
     }
   });
 }
