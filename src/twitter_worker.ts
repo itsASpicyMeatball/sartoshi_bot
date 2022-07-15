@@ -53,7 +53,7 @@ async function listenOnStream() {
         ? "we're just getting started 操你妈逼"
         : false;
       const isSpanish = text.includes("chinga tu madre")
-        ? "we're just getting started mfer"
+        ? "we're just getting started hijo de tu puta madre"
         : false;
       const tweetId = tweet.data.id;
       const mediaArr = tweet.includes ? tweet.includes.media : [];
