@@ -57,7 +57,6 @@ async function listenOnStream() {
         : false;
       const tweetId = tweet.data.id;
       const mediaArr = tweet.includes ? tweet.includes.media : [];
-      console.log(tweet)
   
       if (text === optInText && !idFound) {
         console.log(tweet);
