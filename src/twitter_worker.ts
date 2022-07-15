@@ -56,6 +56,7 @@ async function listenOnStream() {
       : false;
     const tweetId = tweet.data.id;
     const mediaArr = tweet.includes ? tweet.includes.media : [];
+    console.log(tweet)
 
     if (text === optInText && !idFound) {
       console.log(tweet);
@@ -72,7 +73,7 @@ async function listenOnStream() {
     ) {
       let mferfy = text.includes("mferfy");
       let smilesssfy = text.includes("smilesssfy")
-        ? "we're just getting started hijo de tu puta madre"
+        ? "we're just getting started fam"
         : false;
       let imageBuffer;
       let imageUrl;

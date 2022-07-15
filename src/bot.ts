@@ -48,10 +48,10 @@ async function sendFyingTweet(currentTweetObj:any, mferPhrase:any) {
 
 async function sendTweet() {
   while (true) {
-    console.log(authorIdQueue);
 
     if (authorIdQueue.length > 0) {
       const currentTweetObj: any = authorIdQueue.shift();
+      console.log(currentTweetObj);
       let mferPhrase = returnPhrase(currentTweetObj);
       if (
         currentTweetObj.imageBuffer &&
