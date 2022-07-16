@@ -39,7 +39,7 @@ const getOverlayValues = (landmarks) => {
     // I don't know why. (It doesn’t break if we divide by zero.)
     // const angle = Math.round(Math.tan(opposite / adjacent) * 100)
     const angle = Math.atan2(opposite, adjacent) * (180 / Math.PI);
-    const width = jawLength * 2.2;
+    const width = jawLength * 2.9;
     return {
         width,
         angle,
