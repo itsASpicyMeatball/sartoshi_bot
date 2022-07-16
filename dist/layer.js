@@ -38,7 +38,7 @@ const getOverlayValues = (landmarks) => {
     // I don't know why. (It doesn’t break if we divide by zero.)
     // const angle = Math.round(Math.tan(opposite / adjacent) * 100)
     const angle = Math.atan2(opposite, adjacent) * (180 / Math.PI);
-    const width = jawLength * 3.2;
+    const width = jawLength * 2.2;
     return {
         width,
         angle,
@@ -46,8 +46,15 @@ const getOverlayValues = (landmarks) => {
         topOffset: nose[0].y - width * 0.47,
     };
 };
-const getRandomMferBuffer = () => __awaiter(void 0, void 0, void 0, function* () {
-    const imageBuffer = yield fsp.readFile("./images/mfer.png");
+const getRandomMferBuffer = (smilesssOrMfer) => __awaiter(void 0, void 0, void 0, function* () {
+    let imagePath = "";
+    if (smilesssOrMfer === 0) {
+        imagePath = "./images/mfer.png";
+    }
+    else if (smilesssOrMfer === 1) {
+        imagePath = "./images/smilesss.png";
+    }
+    const imageBuffer = yield fsp.readFile(imagePath);
     return imageBuffer;
 });
 const rotateImage = (buffer, angle) => __awaiter(void 0, void 0, void 0, function* () {
@@ -70,31 +77,35 @@ const scaleMfer = (imgBuffer, width) => __awaiter(void 0, void 0, void 0, functi
     const scaledMfer = yield sharp(imgBuffer).resize({ width: width }).toBuffer();
     return scaledMfer;
 });
-export function maskify(buffer, imageUrl) {
+export function maskify(buffer, imageUrl, smilesssOrMfer) {
     return __awaiter(this, void 0, void 0, function* () {
-        console.log("Maskify starting...");
-        yield faceDetectionNet.loadFromDisk("./weights");
-        yield faceapi.nets.faceLandmark68Net.loadFromDisk("./weights");
-        yield faceapi.nets.tinyFaceDetector.loadFromDisk("./weights");
-        console.log("banana");
-        const img = (yield canvas.loadImage(imageUrl));
-        let imageBuffer = buffer;
-        const scale = img.width / img.naturalWidth;
-        console.log(img);
-        const detections = yield faceapi
-            .detectAllFaces(img, getFaceDetectorOptions(faceDetectionNet))
-            .withFaceLandmarks();
-        for (let i = 0; i < detections.length; i++) {
-            const detection = detections[i];
-            const values = getOverlayValues(detection.landmarks);
-            console.log(values);
-            const rotatedMfer = yield rotateImage(yield getRandomMferBuffer(), values.angle);
-            const scaledMfer = yield scaleMfer(rotatedMfer, Math.floor(values.width));
-            // @ts-ignore: Unreachable code error
-            imageBuffer = yield mergeImages(imageBuffer, scaledMfer, Math.floor(values.leftOffset * scale), Math.floor(values.topOffset * scale));
+        try {
+            console.log("Maskify starting...");
+            yield faceDetectionNet.loadFromDisk("./weights");
+            yield faceapi.nets.faceLandmark68Net.loadFromDisk("./weights");
+            yield faceapi.nets.tinyFaceDetector.loadFromDisk("./weights");
+            const img = (yield canvas.loadImage(imageUrl));
+            let imageBuffer = buffer;
+            const scale = img.width / img.naturalWidth;
+            console.log(img);
+            const detections = yield faceapi
+                .detectAllFaces(img, getFaceDetectorOptions(faceDetectionNet))
+                .withFaceLandmarks();
+            for (let i = 0; i < detections.length; i++) {
+                const detection = detections[i];
+                const values = getOverlayValues(detection.landmarks);
+                console.log(values);
+                const rotatedMfer = yield rotateImage(yield getRandomMferBuffer(smilesssOrMfer), values.angle);
+                const scaledMfer = yield scaleMfer(rotatedMfer, Math.floor(values.width));
+                // @ts-ignore: Unreachable code error
+                imageBuffer = yield mergeImages(imageBuffer, scaledMfer, Math.floor(values.leftOffset * scale), Math.floor(values.topOffset * scale));
+            }
+            const finalBuffer = yield outputFile(imageBuffer);
+            console.log("models loaded");
+            return finalBuffer;
         }
-        const finalBuffer = yield outputFile(imageBuffer);
-        console.log("models loaded");
-        return finalBuffer;
+        catch (error) {
+            return -1;
+        }
     });
 }

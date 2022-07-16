@@ -13,33 +13,50 @@ import { maskify } from "./layer.js";
 const worker = new Worker("./dist/twitter_worker.js");
 const userClient = userClientAuth();
 const authorIdQueue = [];
+function returnPhrase(currentTweetObj) {
+    let mferPhrase = "we're just getting started mfer";
+    if (currentTweetObj.isChinease) {
+        mferPhrase = currentTweetObj.isChinease;
+    }
+    else if (currentTweetObj.isSpanish) {
+        mferPhrase = currentTweetObj.isSpanish;
+    }
+    else if (currentTweetObj.smilesssfy) {
+        mferPhrase = currentTweetObj.smilesssfy;
+    }
+    return mferPhrase;
+}
+//example mferfying, smilesssfying
+function sendFyingTweet(currentTweetObj, mferPhrase) {
+    return __awaiter(this, void 0, void 0, function* () {
+        let smilesssOrMfer = 0;
+        if (currentTweetObj.smilesssfy) {
+            smilesssOrMfer = 1;
+        }
+        const mergedImageBuffer = yield maskify(currentTweetObj.imageBuffer, currentTweetObj.imageUrl, smilesssOrMfer);
+        if (mergedImageBuffer === -1) {
+            yield userClient.v1.reply(`There was an issue fying your image`, currentTweetObj.tweetId);
+        }
+        else {
+            const mediaIds = yield userClient.v1.uploadMedia(mergedImageBuffer, {
+                mimeType: "png",
+            });
+            yield userClient.v1.reply(`${mferPhrase}`, currentTweetObj.tweetId, {
+                media_ids: mediaIds,
+            });
+        }
+    });
+}
 function sendTweet() {
     return __awaiter(this, void 0, void 0, function* () {
         while (true) {
-            console.log(authorIdQueue);
-            const chineasePhrase = "we're just getting started 操你妈逼";
-            const englishPhrase = "we're just getting started mfer";
-            const spanishPhrase = "we're just getting started hijo de tu puta madre";
             if (authorIdQueue.length > 0) {
                 const currentTweetObj = authorIdQueue.shift();
-                let mferPhrase;
-                if (currentTweetObj.isChinease) {
-                    mferPhrase = chineasePhrase;
-                }
-                else if (currentTweetObj.isSpanish) {
-                    mferPhrase = spanishPhrase;
-                }
-                else {
-                    mferPhrase = englishPhrase;
-                }
-                if (currentTweetObj.imageBuffer && currentTweetObj.mferfy) {
-                    const mergedImageBuffer = yield maskify(currentTweetObj.imageBuffer, currentTweetObj.imageUrl);
-                    const mediaIds = yield userClient.v1.uploadMedia(mergedImageBuffer, {
-                        mimeType: "png",
-                    });
-                    yield userClient.v1.reply(`${mferPhrase}`, currentTweetObj.tweetId, {
-                        media_ids: mediaIds,
-                    });
+                console.log(currentTweetObj);
+                let mferPhrase = returnPhrase(currentTweetObj);
+                if (currentTweetObj.imageBuffer &&
+                    (currentTweetObj.mferfy || currentTweetObj.smilesssfy)) {
+                    yield sendFyingTweet(currentTweetObj, mferPhrase);
                 }
                 else {
                     yield userClient.v1.reply(`${mferPhrase}`, currentTweetObj.tweetId);

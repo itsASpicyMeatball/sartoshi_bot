@@ -19,7 +19,34 @@ const PHRASES = [
     "chinga tu madre",
     "操你妈逼",
     "mferfy",
+    "smilesssfy",
 ];
+function createImageBuffer(mediaArr) {
+    return __awaiter(this, void 0, void 0, function* () {
+        let imageBuffer;
+        let imageUrl;
+        for (let i = 0; i < mediaArr.length; i++) {
+            console.log(mediaArr);
+            const mediaUrl = mediaArr[i].url;
+            const imageResponse = yield fetch(mediaUrl);
+            const imageArrBuffer = yield imageResponse.arrayBuffer();
+            const buffer = Buffer.from(imageArrBuffer);
+            imageBuffer = buffer;
+            imageUrl = mediaArr[i].url;
+            break;
+        }
+        return { imageBuffer, imageUrl };
+    });
+}
+function fetchTweet(tweetId) {
+    return __awaiter(this, void 0, void 0, function* () {
+        return yield client.v2.get("tweets", {
+            ids: tweetId,
+            expansions: ["referenced_tweets.id", "attachments.media_keys"],
+            "media.fields": ["url"],
+        });
+    });
+}
 function listenOnStream() {
     var _a;
     return __awaiter(this, void 0, void 0, function* () {
@@ -44,47 +71,64 @@ function listenOnStream() {
         // Enable auto reconnect
         stream.autoReconnect = true;
         stream.on("data event content", (tweet) => __awaiter(this, void 0, void 0, function* () {
-            const optInText = "hop in mfer";
-            const author_id = parseInt(tweet.data.author_id);
-            const botId = 1543791826729058300;
-            const idFound = yield findId(author_id);
-            const text = tweet.data.text.toLowerCase();
-            const isChinease = text.includes("操你妈逼") ? true : false;
-            const isSpanish = text.includes("chinga tu madre") ? true : false;
-            const tweetId = tweet.data.id;
-            const mediaArr = tweet.includes ? tweet.includes.media : [];
-            if (text === optInText && !idFound) {
-                console.log(tweet);
-                yield saveId(author_id);
-            }
-            else if (idFound &&
-                author_id != botId &&
-                (text.includes("mfer") ||
-                    text.includes("mfers") ||
-                    text.includes("操你妈逼") ||
-                    text.includes("chinga tu madre") ||
-                    text.includes("mferfy"))) {
-                let mferfy = text.includes("mferfy");
-                let imageBuffer;
-                let imageUrl;
-                for (let i = 0; i < mediaArr.length; i++) {
-                    console.log(mediaArr);
-                    const mediaUrl = mediaArr[i].url;
-                    const imageResponse = yield fetch(mediaUrl);
-                    const imageArrBuffer = yield imageResponse.arrayBuffer();
-                    const buffer = Buffer.from(imageArrBuffer);
-                    imageBuffer = buffer;
-                    imageUrl = mediaArr[i].url;
-                    break;
+            var _b, _c;
+            try {
+                const optInText = "hop in mfer";
+                const author_id = parseInt(tweet.data.author_id);
+                const botId = 1543791826729058300;
+                const idFound = yield findId(author_id);
+                const text = tweet.data.text.toLowerCase();
+                const repliedToTweets = (_b = tweet === null || tweet === void 0 ? void 0 : tweet.includes) === null || _b === void 0 ? void 0 : _b.tweets;
+                const isChinease = text.includes("操你妈逼")
+                    ? "we're just getting started 操你妈逼"
+                    : false;
+                const isSpanish = text.includes("chinga tu madre")
+                    ? "we're just getting started hijo de tu puta madre"
+                    : false;
+                const tweetId = tweet.data.id;
+                const mediaArr = tweet.includes ? tweet.includes.media : [];
+                if (text === optInText && !idFound) {
+                    console.log(tweet);
+                    yield saveId(author_id);
                 }
-                parentPort.postMessage({
-                    tweetId: tweetId,
-                    isChinease: isChinease,
-                    isSpanish: isSpanish,
-                    imageBuffer: imageBuffer,
-                    imageUrl: imageUrl,
-                    mferfy,
-                });
+                else if (idFound &&
+                    author_id != botId &&
+                    (text.includes("mfer") ||
+                        text.includes("mfers") ||
+                        text.includes("操你妈逼") ||
+                        text.includes("chinga tu madre") ||
+                        text.includes("mferfy") ||
+                        text.includes("smilesssfy"))) {
+                    console.log(tweet);
+                    let mferfy = text.includes("mferfy");
+                    let smilesssfy = text.includes("smilesssfy")
+                        ? "we're just getting started fam"
+                        : false;
+                    let imageBuffer;
+                    let imageUrl;
+                    let bufferObject;
+                    if (mediaArr) {
+                        bufferObject = yield createImageBuffer(mediaArr);
+                    }
+                    else if (repliedToTweets) {
+                        const repliedToTweetsWithMedia = yield fetchTweet(repliedToTweets[0].id);
+                        console.log(repliedToTweetsWithMedia);
+                        const media = (_c = repliedToTweetsWithMedia === null || repliedToTweetsWithMedia === void 0 ? void 0 : repliedToTweetsWithMedia.includes) === null || _c === void 0 ? void 0 : _c.media;
+                        bufferObject = media ? yield createImageBuffer(media) : {};
+                    }
+                    parentPort.postMessage({
+                        tweetId: tweetId,
+                        isChinease: isChinease,
+                        isSpanish: isSpanish,
+                        imageBuffer: bufferObject === null || bufferObject === void 0 ? void 0 : bufferObject.imageBuffer,
+                        imageUrl: bufferObject === null || bufferObject === void 0 ? void 0 : bufferObject.imageUrl,
+                        mferfy,
+                        smilesssfy,
+                    });
+                }
+            }
+            catch (error) {
+                console.log(error);
             }
         }));
     });

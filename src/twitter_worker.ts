@@ -16,6 +16,31 @@ const PHRASES = [
   "smilesssfy",
 ];
 
+async function createImageBuffer(mediaArr: any) {
+  let imageBuffer;
+  let imageUrl;
+  for (let i = 0; i < mediaArr.length; i++) {
+    console.log(mediaArr);
+    const mediaUrl = mediaArr[i].url;
+    const imageResponse = await fetch(mediaUrl);
+    const imageArrBuffer = await imageResponse.arrayBuffer();
+    const buffer = Buffer.from(imageArrBuffer);
+    imageBuffer = buffer;
+    imageUrl = mediaArr[i].url;
+    break;
+  }
+
+  return {imageBuffer, imageUrl}
+}
+
+async function fetchTweet(tweetId:any) {
+  return await client.v2.get("tweets", {
+    ids: tweetId,
+    expansions: ["referenced_tweets.id", "attachments.media_keys"],
+    "media.fields": ["url"],
+  });
+}
+
 async function listenOnStream() {
   const rules = await client.v2.streamRules();
   if (rules.data?.length) {
@@ -49,6 +74,7 @@ async function listenOnStream() {
       const botId = 1543791826729058300;
       const idFound = await findId(author_id);
       const text = tweet.data.text.toLowerCase();
+      const repliedToTweets = tweet?.includes?.tweets;
       const isChinease = text.includes("操你妈逼")
         ? "we're just getting started 操你妈逼"
         : false;
@@ -78,25 +104,22 @@ async function listenOnStream() {
           : false;
         let imageBuffer;
         let imageUrl;
+        let bufferObject;
         if (mediaArr) {
-          for (let i = 0; i < mediaArr.length; i++) {
-            console.log(mediaArr);
-            const mediaUrl = mediaArr[i].url;
-            const imageResponse = await fetch(mediaUrl);
-            const imageArrBuffer = await imageResponse.arrayBuffer();
-            const buffer = Buffer.from(imageArrBuffer);
-            imageBuffer = buffer;
-            imageUrl = mediaArr[i].url;
-            break;
-          }
-        }
+          bufferObject = await createImageBuffer(mediaArr);
+        } else if (repliedToTweets) {
+          const repliedToTweetsWithMedia = await fetchTweet(repliedToTweets[0].id)
+          console.log(repliedToTweetsWithMedia);
+          const media = repliedToTweetsWithMedia?.includes?.media;
+          bufferObject = media ? await createImageBuffer(media) : {};
+        } 
   
         parentPort!.postMessage({
           tweetId: tweetId,
           isChinease: isChinease,
           isSpanish: isSpanish,
-          imageBuffer: imageBuffer,
-          imageUrl: imageUrl,
+          imageBuffer: bufferObject?.imageBuffer,
+          imageUrl: bufferObject?.imageUrl,
           mferfy,
           smilesssfy,
         });
