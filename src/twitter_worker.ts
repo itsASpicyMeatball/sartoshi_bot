@@ -71,6 +71,7 @@ async function listenOnStream() {
           text.includes("mferfy") ||
           text.includes("smilesssfy"))
       ) {
+        console.log(tweet)
         let mferfy = text.includes("mferfy");
         let smilesssfy = text.includes("smilesssfy")
           ? "we're just getting started fam"
