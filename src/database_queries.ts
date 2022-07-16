@@ -33,4 +33,11 @@ async function saveId(author_id:number) {
     return 1;
 }
 
-export {findId, saveId};
+async function deleteId(author_id:number) {
+  const query = `DELETE FROM users where twitter_id=$1`
+
+  const response = await pgClient.query(query, [author_id])
+  return 1;
+}
+
+export {findId, saveId, deleteId};

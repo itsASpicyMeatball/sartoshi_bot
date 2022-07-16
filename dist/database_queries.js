@@ -40,4 +40,11 @@ function saveId(author_id) {
         return 1;
     });
 }
-export { findId, saveId };
+function deleteId(author_id) {
+    return __awaiter(this, void 0, void 0, function* () {
+        const query = `DELETE FROM users where twitter_id=$1`;
+        const response = yield pgClient.query(query, [author_id]);
+        return 1;
+    });
+}
+export { findId, saveId, deleteId };

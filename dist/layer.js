@@ -12,6 +12,7 @@ import * as faceapi from "face-api.js";
 import canvas from "canvas";
 import sharp from "sharp";
 import { promises as fsp } from "fs";
+import fetch from "node-fetch";
 export const faceDetectionNet = faceapi.nets.ssdMobilenetv1;
 const { Canvas, Image, ImageData } = canvas;
 // @ts-ignore: Unreachable code error
@@ -46,10 +47,20 @@ const getOverlayValues = (landmarks) => {
         topOffset: nose[0].y - width * 0.47,
     };
 };
+function fetchMferHead(id) {
+    return __awaiter(this, void 0, void 0, function* () {
+        const mferApiFormat = `${id}.png`;
+        const response = yield fetch(`https://heads.mfers.dev/${mferApiFormat}`);
+        const arrayBuffer = yield response.arrayBuffer();
+        const buffer = Buffer.from(arrayBuffer);
+        return buffer;
+    });
+}
 const getRandomMferBuffer = (smilesssOrMfer) => __awaiter(void 0, void 0, void 0, function* () {
     let imagePath = "";
     if (smilesssOrMfer === 0) {
-        imagePath = "./images/mfer.png";
+        const randomId = Math.floor(Math.random() * 10020) + 1;
+        return yield fetchMferHead(randomId);
     }
     else if (smilesssOrMfer === 1) {
         imagePath = "./images/smilesss.png";
@@ -99,12 +110,14 @@ export function maskify(buffer, imageUrl, smilesssOrMfer) {
                 const scaledMfer = yield scaleMfer(rotatedMfer, Math.floor(values.width));
                 // @ts-ignore: Unreachable code error
                 imageBuffer = yield mergeImages(imageBuffer, scaledMfer, Math.floor(values.leftOffset * scale), Math.floor(values.topOffset * scale));
+                yield new Promise((r) => setTimeout(r, 5000));
             }
             const finalBuffer = yield outputFile(imageBuffer);
             console.log("models loaded");
             return finalBuffer;
         }
         catch (error) {
+            console.log(error);
             return -1;
         }
     });

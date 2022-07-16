@@ -1,5 +1,5 @@
 import { auth } from "./config/config.js";
-import { findId, saveId } from "./database_queries.js";
+import { findId, saveId, deleteId } from "./database_queries.js";
 import fetch from "node-fetch";
 
 const client = auth();
@@ -8,6 +8,7 @@ import { parentPort } from "worker_threads";
 
 const PHRASES = [
   "hop in mfer",
+  "hop out mfer",
   "mfer",
   "mfers",
   "chinga tu madre",
@@ -15,6 +16,23 @@ const PHRASES = [
   "mferfy",
   "smilesssfy",
 ];
+
+function returnPhrase(currentTweetObj: any) {
+  let mferPhrase = "we're just getting started mfer";
+  if (currentTweetObj.isChinease) {
+    return currentTweetObj.isChinease;
+  } else if (currentTweetObj.isSpanish) {
+    return currentTweetObj.isSpanish;
+  } else if (currentTweetObj.smilesssfy) {
+    return currentTweetObj.smilesssfy;
+  } else if ( currentTweetObj.isWelcome) {
+    return currentTweetObj.isWelcome;
+  } else if (currentTweetObj.isGoodBye) {
+    return currentTweetObj.isGoodBye;
+  }
+
+  return mferPhrase;
+}
 
 async function createImageBuffer(mediaArr: any) {
   let imageBuffer;
@@ -70,6 +88,7 @@ async function listenOnStream() {
   stream.on("data event content", async (tweet: any) => {
     try {
       const optInText = "hop in mfer";
+      const optOutText = "hop out mfer";
       const author_id = parseInt(tweet.data.author_id);
       const botId = 1543791826729058300;
       const idFound = await findId(author_id);
@@ -81,12 +100,41 @@ async function listenOnStream() {
       const isSpanish = text.includes("chinga tu madre")
         ? "we're just getting started hijo de tu puta madre"
         : false;
+      const isEnglish = "we're just getting started mfer";
+      const isWelcome = text === optInText ? "welcome mfer" : false;
+      const isGoodBye = text === optOutText ? "bye mfer" : false;
+
+      const phraseObject = {isChinease, isEnglish, isSpanish, isWelcome, isGoodBye};
+
+      const finalPhrase = returnPhrase(phraseObject);
+
+      let mferfy = text.includes("mferfy");
+      let smilesssfy = text.includes("smilesssfy")
+        ? "we're just getting started fam"
+        : false;
+      let imageBuffer;
+      let imageUrl;
+
       const tweetId = tweet.data.id;
       const mediaArr = tweet.includes ? tweet.includes.media : [];
+
+      const messageObject = {
+        tweetId,
+        finalPhrase,
+        imageBuffer,
+        imageUrl,
+        mferfy,
+        smilesssfy
+      };
   
       if (text === optInText && !idFound) {
         console.log(tweet);
+        parentPort!.postMessage(messageObject);
         await saveId(author_id);
+      } else if (text === optOutText && idFound) {
+        console.log(tweet);
+        await deleteId(author_id);
+        parentPort!.postMessage(messageObject);
       } else if (
         idFound &&
         author_id != botId &&
@@ -98,31 +146,19 @@ async function listenOnStream() {
           text.includes("smilesssfy"))
       ) {
         console.log(tweet)
-        let mferfy = text.includes("mferfy");
-        let smilesssfy = text.includes("smilesssfy")
-          ? "we're just getting started fam"
-          : false;
-        let imageBuffer;
-        let imageUrl;
         let bufferObject;
         if (mediaArr) {
           bufferObject = await createImageBuffer(mediaArr);
         } else if (repliedToTweets) {
           const repliedToTweetsWithMedia = await fetchTweet(repliedToTweets[0].id)
-          console.log(repliedToTweetsWithMedia);
           const media = repliedToTweetsWithMedia?.includes?.media;
           bufferObject = media ? await createImageBuffer(media) : {};
         } 
-  
-        parentPort!.postMessage({
-          tweetId: tweetId,
-          isChinease: isChinease,
-          isSpanish: isSpanish,
-          imageBuffer: bufferObject?.imageBuffer,
-          imageUrl: bufferObject?.imageUrl,
-          mferfy,
-          smilesssfy,
-        });
+
+        messageObject.imageBuffer = bufferObject?.imageBuffer as any;
+        messageObject.imageUrl = bufferObject?.imageUrl;
+
+        parentPort!.postMessage(messageObject);
         
       }
     } catch (error) {

@@ -6,20 +6,6 @@ const userClient = userClientAuth();
 
 const authorIdQueue: any[] = [];
 
-function returnPhrase(currentTweetObj:any) {
-  
-  let mferPhrase = "we're just getting started mfer";
-  if (currentTweetObj.isChinease) {
-    mferPhrase = currentTweetObj.isChinease;
-  } else if (currentTweetObj.isSpanish) {
-    mferPhrase = currentTweetObj.isSpanish;
-  } else if (currentTweetObj.smilesssfy) {
-    mferPhrase = currentTweetObj.smilesssfy;
-  }
-  
-  return mferPhrase;
-}
-
 //example mferfying, smilesssfying
 async function sendFyingTweet(currentTweetObj:any, mferPhrase:any) {
   let smilesssOrMfer = 0;
@@ -52,7 +38,7 @@ async function sendTweet() {
     if (authorIdQueue.length > 0) {
       const currentTweetObj: any = authorIdQueue.shift();
       console.log(currentTweetObj);
-      let mferPhrase = returnPhrase(currentTweetObj);
+      let mferPhrase = currentTweetObj.finalPhrase;
       if (
         currentTweetObj.imageBuffer &&
         (currentTweetObj.mferfy || currentTweetObj.smilesssfy)

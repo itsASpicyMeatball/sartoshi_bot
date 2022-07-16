@@ -8,12 +8,13 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
     });
 };
 import { auth } from "./config/config.js";
-import { findId, saveId } from "./database_queries.js";
+import { findId, saveId, deleteId } from "./database_queries.js";
 import fetch from "node-fetch";
 const client = auth();
 import { parentPort } from "worker_threads";
 const PHRASES = [
     "hop in mfer",
+    "hop out mfer",
     "mfer",
     "mfers",
     "chinga tu madre",
@@ -21,6 +22,25 @@ const PHRASES = [
     "mferfy",
     "smilesssfy",
 ];
+function returnPhrase(currentTweetObj) {
+    let mferPhrase = "we're just getting started mfer";
+    if (currentTweetObj.isChinease) {
+        return currentTweetObj.isChinease;
+    }
+    else if (currentTweetObj.isSpanish) {
+        return currentTweetObj.isSpanish;
+    }
+    else if (currentTweetObj.smilesssfy) {
+        return currentTweetObj.smilesssfy;
+    }
+    else if (currentTweetObj.isWelcome) {
+        return currentTweetObj.isWelcome;
+    }
+    else if (currentTweetObj.isGoodBye) {
+        return currentTweetObj.isGoodBye;
+    }
+    return mferPhrase;
+}
 function createImageBuffer(mediaArr) {
     return __awaiter(this, void 0, void 0, function* () {
         let imageBuffer;
@@ -74,6 +94,7 @@ function listenOnStream() {
             var _b, _c;
             try {
                 const optInText = "hop in mfer";
+                const optOutText = "hop out mfer";
                 const author_id = parseInt(tweet.data.author_id);
                 const botId = 1543791826729058300;
                 const idFound = yield findId(author_id);
@@ -85,11 +106,36 @@ function listenOnStream() {
                 const isSpanish = text.includes("chinga tu madre")
                     ? "we're just getting started hijo de tu puta madre"
                     : false;
+                const isEnglish = "we're just getting started mfer";
+                const isWelcome = text === optInText ? "welcome mfer" : false;
+                const isGoodBye = text === optOutText ? "bye mfer" : false;
+                const phraseObject = { isChinease, isEnglish, isSpanish, isWelcome, isGoodBye };
+                const finalPhrase = returnPhrase(phraseObject);
+                let mferfy = text.includes("mferfy");
+                let smilesssfy = text.includes("smilesssfy")
+                    ? "we're just getting started fam"
+                    : false;
+                let imageBuffer;
+                let imageUrl;
                 const tweetId = tweet.data.id;
                 const mediaArr = tweet.includes ? tweet.includes.media : [];
+                const messageObject = {
+                    tweetId,
+                    finalPhrase,
+                    imageBuffer,
+                    imageUrl,
+                    mferfy,
+                    smilesssfy
+                };
                 if (text === optInText && !idFound) {
                     console.log(tweet);
+                    parentPort.postMessage(messageObject);
                     yield saveId(author_id);
+                }
+                else if (text === optOutText && idFound) {
+                    console.log(tweet);
+                    yield deleteId(author_id);
+                    parentPort.postMessage(messageObject);
                 }
                 else if (idFound &&
                     author_id != botId &&
@@ -100,31 +146,18 @@ function listenOnStream() {
                         text.includes("mferfy") ||
                         text.includes("smilesssfy"))) {
                     console.log(tweet);
-                    let mferfy = text.includes("mferfy");
-                    let smilesssfy = text.includes("smilesssfy")
-                        ? "we're just getting started fam"
-                        : false;
-                    let imageBuffer;
-                    let imageUrl;
                     let bufferObject;
                     if (mediaArr) {
                         bufferObject = yield createImageBuffer(mediaArr);
                     }
                     else if (repliedToTweets) {
                         const repliedToTweetsWithMedia = yield fetchTweet(repliedToTweets[0].id);
-                        console.log(repliedToTweetsWithMedia);
                         const media = (_c = repliedToTweetsWithMedia === null || repliedToTweetsWithMedia === void 0 ? void 0 : repliedToTweetsWithMedia.includes) === null || _c === void 0 ? void 0 : _c.media;
                         bufferObject = media ? yield createImageBuffer(media) : {};
                     }
-                    parentPort.postMessage({
-                        tweetId: tweetId,
-                        isChinease: isChinease,
-                        isSpanish: isSpanish,
-                        imageBuffer: bufferObject === null || bufferObject === void 0 ? void 0 : bufferObject.imageBuffer,
-                        imageUrl: bufferObject === null || bufferObject === void 0 ? void 0 : bufferObject.imageUrl,
-                        mferfy,
-                        smilesssfy,
-                    });
+                    messageObject.imageBuffer = bufferObject === null || bufferObject === void 0 ? void 0 : bufferObject.imageBuffer;
+                    messageObject.imageUrl = bufferObject === null || bufferObject === void 0 ? void 0 : bufferObject.imageUrl;
+                    parentPort.postMessage(messageObject);
                 }
             }
             catch (error) {

@@ -13,19 +13,6 @@ import { maskify } from "./layer.js";
 const worker = new Worker("./dist/twitter_worker.js");
 const userClient = userClientAuth();
 const authorIdQueue = [];
-function returnPhrase(currentTweetObj) {
-    let mferPhrase = "we're just getting started mfer";
-    if (currentTweetObj.isChinease) {
-        mferPhrase = currentTweetObj.isChinease;
-    }
-    else if (currentTweetObj.isSpanish) {
-        mferPhrase = currentTweetObj.isSpanish;
-    }
-    else if (currentTweetObj.smilesssfy) {
-        mferPhrase = currentTweetObj.smilesssfy;
-    }
-    return mferPhrase;
-}
 //example mferfying, smilesssfying
 function sendFyingTweet(currentTweetObj, mferPhrase) {
     return __awaiter(this, void 0, void 0, function* () {
@@ -53,7 +40,7 @@ function sendTweet() {
             if (authorIdQueue.length > 0) {
                 const currentTweetObj = authorIdQueue.shift();
                 console.log(currentTweetObj);
-                let mferPhrase = returnPhrase(currentTweetObj);
+                let mferPhrase = currentTweetObj.finalPhrase;
                 if (currentTweetObj.imageBuffer &&
                     (currentTweetObj.mferfy || currentTweetObj.smilesssfy)) {
                     yield sendFyingTweet(currentTweetObj, mferPhrase);

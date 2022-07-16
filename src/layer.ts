@@ -3,6 +3,7 @@ import * as faceapi from "face-api.js";
 import canvas from "canvas";
 import sharp from "sharp";
 import { promises as fsp } from "fs";
+import fetch from "node-fetch";
 export const faceDetectionNet = faceapi.nets.ssdMobilenetv1;
 const { Canvas, Image, ImageData } = canvas;
 // @ts-ignore: Unreachable code error
@@ -44,10 +45,20 @@ const getOverlayValues = (landmarks: any) => {
   };
 };
 
+async function fetchMferHead(id: number) {
+  const mferApiFormat = `${id}.png`;
+
+  const response = await fetch(`https://heads.mfers.dev/${mferApiFormat}`);
+  const arrayBuffer = await response.arrayBuffer();
+  const buffer = Buffer.from(arrayBuffer);
+  return buffer;
+}
+
 const getRandomMferBuffer = async (smilesssOrMfer:any) => {
   let imagePath:string = "";
   if (smilesssOrMfer === 0) {
-    imagePath = "./images/mfer.png";
+    const randomId = Math.floor(Math.random() * 10020) + 1;
+    return await fetchMferHead(randomId);
   } else if (smilesssOrMfer === 1) {
     imagePath = "./images/smilesss.png"
   }
@@ -120,11 +131,13 @@ export async function maskify(buffer: any, imageUrl: any, smilesssOrMfer:any){
         Math.floor(values.leftOffset * scale),
         Math.floor(values.topOffset * scale)
       );
+      await new Promise((r) => setTimeout(r, 5000));
     }
     const finalBuffer = await outputFile(imageBuffer)
     console.log("models loaded");
     return finalBuffer;
   } catch (error) {
+    console.log(error)
     return -1;
   }
 }
