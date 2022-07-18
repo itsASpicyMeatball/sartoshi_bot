@@ -34,19 +34,22 @@ async function sendFyingTweet(currentTweetObj:any, mferPhrase:any) {
 
 async function sendTweet() {
   while (true) {
-
-    if (authorIdQueue.length > 0) {
-      const currentTweetObj: any = authorIdQueue.shift();
-      console.log(currentTweetObj);
-      let mferPhrase = currentTweetObj.finalPhrase;
-      if (
-        currentTweetObj.imageBuffer &&
-        (currentTweetObj.mferfy || currentTweetObj.smilesssfy)
-      ) {
-        await sendFyingTweet(currentTweetObj, mferPhrase);
-      } else {
-        await userClient.v1.reply(`${mferPhrase}`, currentTweetObj.tweetId);
+    try {
+      if (authorIdQueue.length > 0) {
+        const currentTweetObj: any = authorIdQueue.shift();
+        console.log(currentTweetObj);
+        let mferPhrase = currentTweetObj.finalPhrase;
+        if (
+          currentTweetObj.imageBuffer &&
+          (currentTweetObj.mferfy || currentTweetObj.smilesssfy)
+        ) {
+          await sendFyingTweet(currentTweetObj, mferPhrase);
+        } else {
+          await userClient.v1.reply(`${mferPhrase}`, currentTweetObj.tweetId);
+        }
       }
+    } catch (error) {
+      console.log(error)
     }
 
     await new Promise((r) => setTimeout(r, 20000));
