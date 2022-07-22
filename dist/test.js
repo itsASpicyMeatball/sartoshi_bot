@@ -8,13 +8,28 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
     });
 };
 import fetch from "node-fetch";
+import fs from "fs";
+const imageUrls = fs.createWriteStream("./mfers.txt");
 function fetchMferHead(id) {
     return __awaiter(this, void 0, void 0, function* () {
-        const mferApiFormat = `${id}.png`;
-        const response = yield fetch(`https://heads.mfers.dev/${mferApiFormat}`);
-        const arrayBuffer = yield response.arrayBuffer();
-        const buffer = Buffer.from(arrayBuffer);
-        return buffer;
+        const mferApiFormat = `https://gateway.pinata.cloud/ipfs/QmWiQE65tmpYzcokCheQmng2DCM33DEhjXcPB6PanwpAZo/${id}`;
+        const response = yield fetch(mferApiFormat);
+        const jsonResponse = yield response.json();
+        console.log(jsonResponse);
+        // @ts-ignore: Unreachable code error
+        const imageipfs = yield jsonResponse.image.split("//")[1];
+        return `https://gateway.pinata.cloud/ipfs/${imageipfs}`;
     });
 }
-fetchMferHead(0);
+function iterateThroughIds() {
+    return __awaiter(this, void 0, void 0, function* () {
+        let i = 0;
+        while (i < 10022) {
+            const url = yield fetchMferHead(i);
+            imageUrls.write(`${url}\n`);
+            yield new Promise((r) => setTimeout(r, 2000));
+            i += 1;
+        }
+    });
+}
+iterateThroughIds();

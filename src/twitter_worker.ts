@@ -127,11 +127,11 @@ async function listenOnStream() {
         smilesssfy
       };
   
-      if (text === optInText && !idFound) {
+      if (text.includes(optInText) && !idFound) {
         console.log(tweet);
         parentPort!.postMessage(messageObject);
         await saveId(author_id);
-      } else if (text === optOutText && idFound) {
+      } else if (text.includes(optOutText) && idFound) {
         console.log(tweet);
         await deleteId(author_id);
         parentPort!.postMessage(messageObject);

@@ -127,12 +127,12 @@ function listenOnStream() {
                     mferfy,
                     smilesssfy
                 };
-                if (text === optInText && !idFound) {
+                if (text.includes(optInText) && !idFound) {
                     console.log(tweet);
                     parentPort.postMessage(messageObject);
                     yield saveId(author_id);
                 }
-                else if (text === optOutText && idFound) {
+                else if (text.includes(optOutText) && idFound) {
                     console.log(tweet);
                     yield deleteId(author_id);
                     parentPort.postMessage(messageObject);

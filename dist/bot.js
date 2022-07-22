@@ -37,17 +37,22 @@ function sendFyingTweet(currentTweetObj, mferPhrase) {
 function sendTweet() {
     return __awaiter(this, void 0, void 0, function* () {
         while (true) {
-            if (authorIdQueue.length > 0) {
-                const currentTweetObj = authorIdQueue.shift();
-                console.log(currentTweetObj);
-                let mferPhrase = currentTweetObj.finalPhrase;
-                if (currentTweetObj.imageBuffer &&
-                    (currentTweetObj.mferfy || currentTweetObj.smilesssfy)) {
-                    yield sendFyingTweet(currentTweetObj, mferPhrase);
+            try {
+                if (authorIdQueue.length > 0) {
+                    const currentTweetObj = authorIdQueue.shift();
+                    console.log(currentTweetObj);
+                    let mferPhrase = currentTweetObj.finalPhrase;
+                    if (currentTweetObj.imageBuffer &&
+                        (currentTweetObj.mferfy || currentTweetObj.smilesssfy)) {
+                        yield sendFyingTweet(currentTweetObj, mferPhrase);
+                    }
+                    else {
+                        yield userClient.v1.reply(`${mferPhrase}`, currentTweetObj.tweetId);
+                    }
                 }
-                else {
-                    yield userClient.v1.reply(`${mferPhrase}`, currentTweetObj.tweetId);
-                }
+            }
+            catch (error) {
+                console.log(error);
             }
             yield new Promise((r) => setTimeout(r, 20000));
         }
