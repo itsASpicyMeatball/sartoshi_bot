@@ -21,16 +21,16 @@ function returnPhrase(currentTweetObj: any) {
   let mferPhrase = "we're just getting started mfer";
   if (currentTweetObj.isGmMfer) {
     return currentTweetObj.isGmMfer;
+  } else if (currentTweetObj.isWelcome) {
+    return currentTweetObj.isWelcome;
+  } else if (currentTweetObj.isGoodBye) {
+    return currentTweetObj.isGoodBye;
   } else if (currentTweetObj.isChinease) {
     return currentTweetObj.isChinease;
   } else if (currentTweetObj.isSpanish) {
     return currentTweetObj.isSpanish;
   } else if (currentTweetObj.smilesssfy) {
     return currentTweetObj.smilesssfy;
-  } else if ( currentTweetObj.isWelcome) {
-    return currentTweetObj.isWelcome;
-  } else if (currentTweetObj.isGoodBye) {
-    return currentTweetObj.isGoodBye;
   }
 
   return mferPhrase;
@@ -103,8 +103,8 @@ async function listenOnStream() {
         ? "we're just getting started hijo de tu puta madre"
         : false;
       const isEnglish = "we're just getting started mfer";
-      const isWelcome = text === optInText ? "welcome mfer" : false;
-      const isGoodBye = text === optOutText ? "bye mfer" : false;
+      const isWelcome = text.includes(optInText) ? "welcome mfer" : false;
+      const isGoodBye = text.includes(optOutText) ? "bye mfer" : false;
       const isGmMfer = text.includes("gm mfer") || text.includes("gmfer") ? "gm mfer" : false;
 
       const phraseObject = {
