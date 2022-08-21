@@ -128,6 +128,7 @@ function listenOnStream() {
                     : false;
                 let imageBuffer;
                 let imageUrl;
+                //if mferfy is in the statement then go ahead and let them mferfy. they don't have to me in the database
                 let replyGate = mferfy ? true : idFound;
                 const tweetId = tweet.data.id;
                 const mediaArr = tweet.includes ? tweet.includes.media : [];
