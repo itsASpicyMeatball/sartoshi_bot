@@ -124,7 +124,7 @@ async function listenOnStream() {
         : false;
       let imageBuffer;
       let imageUrl;
-
+      let replyGate = mferfy ? true : idFound
       const tweetId = tweet.data.id;
       const mediaArr = tweet.includes ? tweet.includes.media : [];
 
@@ -146,7 +146,7 @@ async function listenOnStream() {
         await deleteId(author_id);
         parentPort!.postMessage(messageObject);
       } else if (
-        idFound &&
+        replyGate &&
         author_id != botId &&
         (text.includes("mfer") ||
           text.includes("mfers") ||

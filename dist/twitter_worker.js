@@ -24,7 +24,16 @@ const PHRASES = [
 ];
 function returnPhrase(currentTweetObj) {
     let mferPhrase = "we're just getting started mfer";
-    if (currentTweetObj.isChinease) {
+    if (currentTweetObj.isGmMfer) {
+        return currentTweetObj.isGmMfer;
+    }
+    else if (currentTweetObj.isWelcome) {
+        return currentTweetObj.isWelcome;
+    }
+    else if (currentTweetObj.isGoodBye) {
+        return currentTweetObj.isGoodBye;
+    }
+    else if (currentTweetObj.isChinease) {
         return currentTweetObj.isChinease;
     }
     else if (currentTweetObj.isSpanish) {
@@ -32,12 +41,6 @@ function returnPhrase(currentTweetObj) {
     }
     else if (currentTweetObj.smilesssfy) {
         return currentTweetObj.smilesssfy;
-    }
-    else if (currentTweetObj.isWelcome) {
-        return currentTweetObj.isWelcome;
-    }
-    else if (currentTweetObj.isGoodBye) {
-        return currentTweetObj.isGoodBye;
     }
     return mferPhrase;
 }
@@ -107,9 +110,17 @@ function listenOnStream() {
                     ? "we're just getting started hijo de tu puta madre"
                     : false;
                 const isEnglish = "we're just getting started mfer";
-                const isWelcome = text === optInText ? "welcome mfer" : false;
-                const isGoodBye = text === optOutText ? "bye mfer" : false;
-                const phraseObject = { isChinease, isEnglish, isSpanish, isWelcome, isGoodBye };
+                const isWelcome = text.includes(optInText) ? "welcome mfer" : false;
+                const isGoodBye = text.includes(optOutText) ? "bye mfer" : false;
+                const isGmMfer = text.includes("gm mfer") || text.includes("gmfer") ? "gm mfer" : false;
+                const phraseObject = {
+                    isChinease,
+                    isEnglish,
+                    isSpanish,
+                    isWelcome,
+                    isGoodBye,
+                    isGmMfer,
+                };
                 const finalPhrase = returnPhrase(phraseObject);
                 let mferfy = text.includes("mferfy");
                 let smilesssfy = text.includes("smilesssfy")
@@ -117,6 +128,7 @@ function listenOnStream() {
                     : false;
                 let imageBuffer;
                 let imageUrl;
+                let replyGate = mferfy ? true : idFound;
                 const tweetId = tweet.data.id;
                 const mediaArr = tweet.includes ? tweet.includes.media : [];
                 const messageObject = {
@@ -137,7 +149,7 @@ function listenOnStream() {
                     yield deleteId(author_id);
                     parentPort.postMessage(messageObject);
                 }
-                else if (idFound &&
+                else if (replyGate &&
                     author_id != botId &&
                     (text.includes("mfer") ||
                         text.includes("mfers") ||
