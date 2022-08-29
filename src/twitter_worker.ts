@@ -89,6 +89,11 @@ async function listenOnStream() {
 
   stream.on("data event content", async (tweet: any) => {
     try {
+      const resp = await fetch("https://type.fit/api/quotes");
+      const quotes = await resp.json();
+      // @ts-ignore
+      const randomQuoteObj = quotes[Math.floor(Math.random()* (quotes.length-1))];
+      const quoteTxt = randomQuoteObj.text;
       const optInText = "hop in mfer";
       const optOutText = "hop out mfer";
       const author_id = parseInt(tweet.data.author_id);
@@ -105,7 +110,8 @@ async function listenOnStream() {
       const isEnglish = "we're just getting started mfer";
       const isWelcome = text.includes(optInText) ? "welcome mfer" : false;
       const isGoodBye = text.includes(optOutText) ? "bye mfer" : false;
-      const isGmMfer = text.includes("gm mfer") || text.includes("gmfer") ? "gm mfer" : false;
+      const isGmMfer =
+        text.includes("gm mfer") || text.includes("gmfer") ? `gm mfer, ${quoteTxt}` : false;
 
       const phraseObject = {
         isChinease,
@@ -125,7 +131,7 @@ async function listenOnStream() {
       let imageBuffer;
       let imageUrl;
       //if mferfy is in the statement then go ahead and let them mferfy. they don't have to me in the database
-      let replyGate = mferfy ? true : idFound
+      let replyGate = mferfy ? true : idFound;
       const tweetId = tweet.data.id;
       const mediaArr = tweet.includes ? tweet.includes.media : [];
 
@@ -135,9 +141,9 @@ async function listenOnStream() {
         imageBuffer,
         imageUrl,
         mferfy,
-        smilesssfy
+        smilesssfy,
       };
-  
+
       if (text.includes(optInText) && !idFound) {
         console.log(tweet);
         parentPort!.postMessage(messageObject);
@@ -156,21 +162,22 @@ async function listenOnStream() {
           text.includes("mferfy") ||
           text.includes("smilesssfy"))
       ) {
-        console.log(tweet)
+        console.log(tweet);
         let bufferObject;
         if (mediaArr) {
           bufferObject = await createImageBuffer(mediaArr);
         } else if (repliedToTweets) {
-          const repliedToTweetsWithMedia = await fetchTweet(repliedToTweets[0].id)
+          const repliedToTweetsWithMedia = await fetchTweet(
+            repliedToTweets[0].id
+          );
           const media = repliedToTweetsWithMedia?.includes?.media;
           bufferObject = media ? await createImageBuffer(media) : {};
-        } 
+        }
 
         messageObject.imageBuffer = bufferObject?.imageBuffer as any;
         messageObject.imageUrl = bufferObject?.imageUrl;
 
         parentPort!.postMessage(messageObject);
-        
       }
     } catch (error) {
       console.log(error)

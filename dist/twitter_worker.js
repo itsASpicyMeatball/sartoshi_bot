@@ -96,6 +96,11 @@ function listenOnStream() {
         stream.on("data event content", (tweet) => __awaiter(this, void 0, void 0, function* () {
             var _b, _c;
             try {
+                const resp = yield fetch("https://type.fit/api/quotes");
+                const quotes = yield resp.json();
+                // @ts-ignore
+                const randomQuoteObj = quotes[Math.floor(Math.random() * (quotes.length - 1))];
+                const quoteTxt = randomQuoteObj.text;
                 const optInText = "hop in mfer";
                 const optOutText = "hop out mfer";
                 const author_id = parseInt(tweet.data.author_id);
@@ -112,7 +117,7 @@ function listenOnStream() {
                 const isEnglish = "we're just getting started mfer";
                 const isWelcome = text.includes(optInText) ? "welcome mfer" : false;
                 const isGoodBye = text.includes(optOutText) ? "bye mfer" : false;
-                const isGmMfer = text.includes("gm mfer") || text.includes("gmfer") ? "gm mfer" : false;
+                const isGmMfer = text.includes("gm mfer") || text.includes("gmfer") ? `gm mfer, ${quoteTxt}` : false;
                 const phraseObject = {
                     isChinease,
                     isEnglish,
@@ -138,7 +143,7 @@ function listenOnStream() {
                     imageBuffer,
                     imageUrl,
                     mferfy,
-                    smilesssfy
+                    smilesssfy,
                 };
                 if (text.includes(optInText) && !idFound) {
                     console.log(tweet);
