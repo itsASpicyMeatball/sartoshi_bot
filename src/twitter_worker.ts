@@ -96,22 +96,22 @@ async function listenOnStream() {
       const idFound = await findId(author_id);
       const text = tweet.data.text.toLowerCase();
       const repliedToTweets = tweet?.includes?.tweets;
-      const isChinease = text.includes("操你妈逼")
-        ? "we're just getting started 操你妈逼"
-        : false;
-      const isSpanish = text.includes("chinga tu madre")
-        ? "we're just getting started hijo de tu puta madre"
-        : false;
-      const isEnglish = "we're just getting started mfer";
+      // const isChinease = text.includes("操你妈逼")
+      //   ? "we're just getting started 操你妈逼"
+      //   : false;
+      // const isSpanish = text.includes("chinga tu madre")
+      //   ? "we're just getting started hijo de tu puta madre"
+      //   : false;
+      // const isEnglish = "we're just getting started mfer";
       const isWelcome = text.includes(optInText) ? "welcome mfer" : false;
       const isGoodBye = text.includes(optOutText) ? "bye mfer" : false;
       const isGmMfer =
         text.includes("gm mfer") || text.includes("gmfer") ? `gm mfer` : false;
 
       const phraseObject = {
-        isChinease,
-        isEnglish,
-        isSpanish,
+        // isChinease,
+        // isEnglish,
+        // isSpanish,
         isWelcome,
         isGoodBye,
         isGmMfer,
