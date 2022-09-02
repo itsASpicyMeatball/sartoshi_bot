@@ -160,12 +160,9 @@ function listenOnStream() {
                 }
                 else if (replyGate &&
                     author_id != botId &&
-                    (text.includes("mfer") ||
-                        text.includes("mfers") ||
-                        text.includes("操你妈逼") ||
-                        text.includes("chinga tu madre") ||
-                        text.includes("mferfy") ||
-                        text.includes("smilesssfy"))) {
+                    (text.includes("gmfer") ||
+                        text.includes("gm mfer") ||
+                        text.includes("mferfy"))) {
                     console.log(tweet);
                     let bufferObject;
                     if (mediaArr) {
