@@ -15,12 +15,9 @@ import { parentPort } from "worker_threads";
 const PHRASES = [
     "hop in mfer",
     "hop out mfer",
-    "mfer",
-    "mfers",
-    "chinga tu madre",
-    "操你妈逼",
+    "gm mfer",
+    "gmfer",
     "mferfy",
-    "smilesssfy",
 ];
 function returnPhrase(currentTweetObj) {
     let mferPhrase = "we're just getting started mfer";
