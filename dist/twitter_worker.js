@@ -114,7 +114,7 @@ function listenOnStream() {
                     // @ts-ignore
                     const randomQuoteObj = quotes[Math.floor(Math.random() * (quotes.length - 1))];
                     const quoteTxt = randomQuoteObj.text;
-                    finalPhrase = `gm mfer, ${quoteTxt}`;
+                    finalPhrase = `gm gm gm, ${quoteTxt}`;
                 }
                 let mferfy = text.includes("mferfy");
                 let saveGif = text.includes("savemfergif");
