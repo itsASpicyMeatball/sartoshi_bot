@@ -41,9 +41,15 @@ async function sendTweet() {
         let mferPhrase = currentTweetObj.finalPhrase;
         if (
           currentTweetObj.imageBuffer &&
-          (currentTweetObj.mferfy || currentTweetObj.smilesssfy)
+          (currentTweetObj.mferfy || currentTweetObj.smilesssfy) 
+          && !currentTweetObj.saveGif
         ) {
           await sendFyingTweet(currentTweetObj, mferPhrase);
+        } else if (currentTweetObj.saveGif) {
+          await userClient.v2.retweet(
+            "1543791826729058304",
+            currentTweetObj.tweetId
+          );
         } else {
           await userClient.v1.reply(`${mferPhrase}`, currentTweetObj.tweetId);
         }

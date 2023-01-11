@@ -43,8 +43,12 @@ function sendTweet() {
                     console.log(currentTweetObj);
                     let mferPhrase = currentTweetObj.finalPhrase;
                     if (currentTweetObj.imageBuffer &&
-                        (currentTweetObj.mferfy || currentTweetObj.smilesssfy)) {
+                        (currentTweetObj.mferfy || currentTweetObj.smilesssfy)
+                        && !currentTweetObj.saveGif) {
                         yield sendFyingTweet(currentTweetObj, mferPhrase);
+                    }
+                    else if (currentTweetObj.saveGif) {
+                        yield userClient.v2.retweet("1543791826729058304", currentTweetObj.tweetId);
                     }
                     else {
                         yield userClient.v1.reply(`${mferPhrase}`, currentTweetObj.tweetId);

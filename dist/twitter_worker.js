@@ -8,17 +8,10 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
     });
 };
 import { auth } from "./config/config.js";
-import { findId, saveId, deleteId } from "./database_queries.js";
 import fetch from "node-fetch";
 const client = auth();
 import { parentPort } from "worker_threads";
-const PHRASES = [
-    "hop in mfer",
-    "hop out mfer",
-    "gm mfer",
-    "gmfer",
-    "mferfy",
-];
+const PHRASES = ["hop in mfer", "hop out mfer", "gm mfer", "gmfer", "mferfy", "savemfergif"];
 function returnPhrase(currentTweetObj) {
     let mferPhrase = "we're just getting started mfer";
     if (currentTweetObj.isGmMfer) {
@@ -97,7 +90,6 @@ function listenOnStream() {
                 const optOutText = "hop out mfer";
                 const author_id = parseInt(tweet.data.author_id);
                 const botId = 1543791826729058300;
-                const idFound = yield findId(author_id);
                 const text = tweet.data.text.toLowerCase();
                 const repliedToTweets = (_b = tweet === null || tweet === void 0 ? void 0 : tweet.includes) === null || _b === void 0 ? void 0 : _b.tweets;
                 // const isChinease = text.includes("操你妈逼")
@@ -111,9 +103,6 @@ function listenOnStream() {
                 const isGoodBye = text.includes(optOutText) ? "bye mfer" : false;
                 const isGmMfer = text.includes("gm mfer") || text.includes("gmfer") ? `gm mfer` : false;
                 const phraseObject = {
-                    // isChinease,
-                    // isEnglish,
-                    // isSpanish,
                     isWelcome,
                     isGoodBye,
                     isGmMfer,
@@ -128,13 +117,14 @@ function listenOnStream() {
                     finalPhrase = `gm mfer, ${quoteTxt}`;
                 }
                 let mferfy = text.includes("mferfy");
+                let saveGif = text.includes("savemfergif");
                 let smilesssfy = text.includes("smilesssfy")
                     ? "we're just getting started fam"
                     : false;
                 let imageBuffer;
                 let imageUrl;
                 //if mferfy is in the statement then go ahead and let them mferfy. they don't have to me in the database
-                let replyGate = mferfy ? true : idFound;
+                let replyGate = mferfy || saveGif || isGmMfer;
                 const tweetId = tweet.data.id;
                 const mediaArr = tweet.includes ? tweet.includes.media : [];
                 const messageObject = {
@@ -144,29 +134,18 @@ function listenOnStream() {
                     imageUrl,
                     mferfy,
                     smilesssfy,
+                    saveGif
                 };
-                if (text.includes(optInText) && !idFound) {
-                    console.log(tweet);
-                    parentPort.postMessage(messageObject);
-                    yield saveId(author_id);
-                }
-                else if (text.includes(optOutText) && idFound) {
-                    console.log(tweet);
-                    yield deleteId(author_id);
-                    parentPort.postMessage(messageObject);
-                }
-                else if (replyGate &&
-                    author_id != botId &&
-                    (text.includes("gmfer") ||
-                        text.includes("gm mfer") ||
-                        text.includes("mferfy"))) {
+                if (replyGate && author_id != botId) {
                     console.log(tweet);
                     let bufferObject;
-                    if (mediaArr) {
+                    if (mediaArr && !saveGif) {
                         bufferObject = yield createImageBuffer(mediaArr);
                     }
-                    else if (repliedToTweets) {
+                    else if (repliedToTweets && !saveGif) {
+                        console.log("banana");
                         const repliedToTweetsWithMedia = yield fetchTweet(repliedToTweets[0].id);
+                        console.log("papaya");
                         const media = (_c = repliedToTweetsWithMedia === null || repliedToTweetsWithMedia === void 0 ? void 0 : repliedToTweetsWithMedia.includes) === null || _c === void 0 ? void 0 : _c.media;
                         bufferObject = media ? yield createImageBuffer(media) : {};
                     }
