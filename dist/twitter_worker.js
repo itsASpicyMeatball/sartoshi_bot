@@ -12,6 +12,7 @@ import fetch from "node-fetch";
 const client = auth();
 import { parentPort } from "worker_threads";
 const PHRASES = ["hop in mfer", "hop out mfer", "gm mfer", "gmfer", "mferfy", "savemfergif"];
+let timeout = 0;
 function returnPhrase(currentTweetObj) {
     let mferPhrase = "we're just getting started mfer";
     if (currentTweetObj.isGmMfer) {
@@ -83,7 +84,8 @@ function listenOnStream() {
         });
         // Enable auto reconnect
         stream.autoReconnect = true;
-        stream.on("data event content", (tweet) => __awaiter(this, void 0, void 0, function* () {
+        stream
+            .on("data event content", (tweet) => __awaiter(this, void 0, void 0, function* () {
             var _b, _c;
             try {
                 const optInText = "hop in mfer";
@@ -101,7 +103,9 @@ function listenOnStream() {
                 // const isEnglish = "we're just getting started mfer";
                 const isWelcome = text.includes(optInText) ? "welcome mfer" : false;
                 const isGoodBye = text.includes(optOutText) ? "bye mfer" : false;
-                const isGmMfer = text.includes("gm mfer") || text.includes("gmfer") ? `gm mfer` : false;
+                const isGmMfer = text.includes("gm mfer") || text.includes("gmfer")
+                    ? `gm mfer`
+                    : false;
                 const phraseObject = {
                     isWelcome,
                     isGoodBye,
@@ -134,7 +138,7 @@ function listenOnStream() {
                     imageUrl,
                     mferfy,
                     smilesssfy,
-                    saveGif
+                    saveGif,
                 };
                 if (replyGate && author_id != botId) {
                     console.log(tweet);
@@ -143,9 +147,7 @@ function listenOnStream() {
                         bufferObject = yield createImageBuffer(mediaArr);
                     }
                     else if (repliedToTweets && !saveGif) {
-                        console.log("banana");
                         const repliedToTweetsWithMedia = yield fetchTweet(repliedToTweets[0].id);
-                        console.log("papaya");
                         const media = (_c = repliedToTweetsWithMedia === null || repliedToTweetsWithMedia === void 0 ? void 0 : repliedToTweetsWithMedia.includes) === null || _c === void 0 ? void 0 : _c.media;
                         bufferObject = media ? yield createImageBuffer(media) : {};
                     }
@@ -157,7 +159,21 @@ function listenOnStream() {
             catch (error) {
                 console.log(error);
             }
-        }));
+        }))
+            .on("error", (error) => {
+            // Connection timed out
+            console.log("error", error);
+            reconnect(stream);
+        });
     });
 }
+const sleep = (delay) => __awaiter(void 0, void 0, void 0, function* () {
+    return new Promise((resolve) => setTimeout(() => resolve(true), delay));
+});
+const reconnect = (stream) => __awaiter(void 0, void 0, void 0, function* () {
+    timeout++;
+    stream.abort();
+    yield sleep(2 ** timeout * 1000);
+    listenOnStream();
+});
 listenOnStream();

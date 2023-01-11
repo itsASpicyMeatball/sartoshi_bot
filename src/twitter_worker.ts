@@ -6,6 +6,7 @@ const client = auth();
 import { parentPort } from "worker_threads";
 
 const PHRASES = ["hop in mfer", "hop out mfer", "gm mfer", "gmfer", "mferfy", "savemfergif"];
+let timeout = 0;
 
 function returnPhrase(currentTweetObj: any) {
   let mferPhrase = "we're just getting started mfer";
@@ -77,86 +78,103 @@ async function listenOnStream() {
   // Enable auto reconnect
   stream.autoReconnect = true;
 
-  stream.on("data event content", async (tweet: any) => {
-    try {
-      const optInText = "hop in mfer";
-      const optOutText = "hop out mfer";
-      const author_id = parseInt(tweet.data.author_id);
-      const botId = 1543791826729058300;
-      const text = tweet.data.text.toLowerCase();
-      const repliedToTweets = tweet?.includes?.tweets;
-      // const isChinease = text.includes("操你妈逼")
-      //   ? "we're just getting started 操你妈逼"
-      //   : false;
-      // const isSpanish = text.includes("chinga tu madre")
-      //   ? "we're just getting started hijo de tu puta madre"
-      //   : false;
-      // const isEnglish = "we're just getting started mfer";
-      const isWelcome = text.includes(optInText) ? "welcome mfer" : false;
-      const isGoodBye = text.includes(optOutText) ? "bye mfer" : false;
-      const isGmMfer =
-        text.includes("gm mfer") || text.includes("gmfer") ? `gm mfer` : false;
+  stream
+    .on("data event content", async (tweet: any) => {
+      try {
+        const optInText = "hop in mfer";
+        const optOutText = "hop out mfer";
+        const author_id = parseInt(tweet.data.author_id);
+        const botId = 1543791826729058300;
+        const text = tweet.data.text.toLowerCase();
+        const repliedToTweets = tweet?.includes?.tweets;
+        // const isChinease = text.includes("操你妈逼")
+        //   ? "we're just getting started 操你妈逼"
+        //   : false;
+        // const isSpanish = text.includes("chinga tu madre")
+        //   ? "we're just getting started hijo de tu puta madre"
+        //   : false;
+        // const isEnglish = "we're just getting started mfer";
+        const isWelcome = text.includes(optInText) ? "welcome mfer" : false;
+        const isGoodBye = text.includes(optOutText) ? "bye mfer" : false;
+        const isGmMfer =
+          text.includes("gm mfer") || text.includes("gmfer")
+            ? `gm mfer`
+            : false;
 
-      const phraseObject = {
-        isWelcome,
-        isGoodBye,
-        isGmMfer,
-      };
+        const phraseObject = {
+          isWelcome,
+          isGoodBye,
+          isGmMfer,
+        };
 
-      let finalPhrase = returnPhrase(phraseObject);
-      if (isGmMfer) {
-        const resp = await fetch("https://type.fit/api/quotes");
-        const quotes = await resp.json();
-        // @ts-ignore
-        const randomQuoteObj = quotes[Math.floor(Math.random() * (quotes.length - 1))];
-        const quoteTxt = randomQuoteObj.text;
-        finalPhrase = `gm gm gm, ${quoteTxt}`;
-      }
-      let mferfy = text.includes("mferfy");
-      let saveGif = text.includes("savemfergif");
-      let smilesssfy = text.includes("smilesssfy")
-        ? "we're just getting started fam"
-        : false;
-      let imageBuffer;
-      let imageUrl;
-      //if mferfy is in the statement then go ahead and let them mferfy. they don't have to me in the database
-      let replyGate = mferfy || saveGif || isGmMfer;
-      const tweetId = tweet.data.id;
-      const mediaArr = tweet.includes ? tweet.includes.media : [];
-
-      const messageObject = {
-        tweetId,
-        finalPhrase,
-        imageBuffer,
-        imageUrl,
-        mferfy,
-        smilesssfy,
-        saveGif
-      };
-
-      if (replyGate && author_id != botId) {
-        console.log(tweet);
-        let bufferObject;
-        if (mediaArr && !saveGif) {
-          bufferObject = await createImageBuffer(mediaArr);
-        } else if (repliedToTweets && !saveGif) {
-          console.log("banana")
-          const repliedToTweetsWithMedia = await fetchTweet(
-            repliedToTweets[0].id
-          );
-          console.log("papaya");
-          const media = repliedToTweetsWithMedia?.includes?.media;
-          bufferObject = media ? await createImageBuffer(media) : {};
+        let finalPhrase = returnPhrase(phraseObject);
+        if (isGmMfer) {
+          const resp = await fetch("https://type.fit/api/quotes");
+          const quotes = await resp.json();
+          // @ts-ignore
+          const randomQuoteObj = quotes[Math.floor(Math.random() * (quotes.length - 1))];
+          const quoteTxt = randomQuoteObj.text;
+          finalPhrase = `gm gm gm, ${quoteTxt}`;
         }
+        let mferfy = text.includes("mferfy");
+        let saveGif = text.includes("savemfergif");
+        let smilesssfy = text.includes("smilesssfy")
+          ? "we're just getting started fam"
+          : false;
+        let imageBuffer;
+        let imageUrl;
+        //if mferfy is in the statement then go ahead and let them mferfy. they don't have to me in the database
+        let replyGate = mferfy || saveGif || isGmMfer;
+        const tweetId = tweet.data.id;
+        const mediaArr = tweet.includes ? tweet.includes.media : [];
 
-        messageObject.imageBuffer = bufferObject?.imageBuffer as any;
-        messageObject.imageUrl = bufferObject?.imageUrl;
-        parentPort!.postMessage(messageObject);
+        const messageObject = {
+          tweetId,
+          finalPhrase,
+          imageBuffer,
+          imageUrl,
+          mferfy,
+          smilesssfy,
+          saveGif,
+        };
+
+        if (replyGate && author_id != botId) {
+          console.log(tweet);
+          let bufferObject;
+          if (mediaArr && !saveGif) {
+            bufferObject = await createImageBuffer(mediaArr);
+          } else if (repliedToTweets && !saveGif) {
+            const repliedToTweetsWithMedia = await fetchTweet(
+              repliedToTweets[0].id
+            );
+            const media = repliedToTweetsWithMedia?.includes?.media;
+            bufferObject = media ? await createImageBuffer(media) : {};
+          }
+
+          messageObject.imageBuffer = bufferObject?.imageBuffer as any;
+          messageObject.imageUrl = bufferObject?.imageUrl;
+          parentPort!.postMessage(messageObject);
+        }
+      } catch (error) {
+        console.log(error);
       }
-    } catch (error) {
-      console.log(error);
-    }
-  });
+    })
+    .on("error", (error) => {
+      // Connection timed out
+      console.log("error", error);
+      reconnect(stream);
+    });
 }
+
+const sleep = async (delay: any) => {
+  return new Promise((resolve) => setTimeout(() => resolve(true), delay));
+};
+
+const reconnect = async (stream: any) => {
+  timeout++;
+  stream.abort();
+  await sleep(2 ** timeout * 1000);
+  listenOnStream();
+};
 
 listenOnStream();
