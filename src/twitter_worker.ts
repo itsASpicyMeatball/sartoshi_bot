@@ -70,9 +70,9 @@ async function listenOnStream() {
   });
 
   const stream = await client.v2.searchStream({
-    "tweet.fields": ["referenced_tweets", "author_id"],
+    "tweet.fields": ["referenced_tweets", "author_id", "attachments"],
     expansions: ["referenced_tweets.id", "attachments.media_keys"],
-    "media.fields": ["url"],
+    "media.fields": ["url", "media_key", "type"],
   });
 
   // Enable auto reconnect
@@ -125,8 +125,19 @@ async function listenOnStream() {
         let imageUrl;
         //if mferfy is in the statement then go ahead and let them mferfy. they don't have to me in the database
         let replyGate = mferfy || saveGif || isGmMfer;
-        const tweetId = tweet.data.id;
-        const mediaArr = tweet.includes ? tweet.includes.media : [];
+        const tweetId = tweet?.data?.id;
+        const referenced_tweet_id = tweet.data?.referenced_tweets[0].id
+        const referenced_tweet = await fetchTweet(referenced_tweet_id);
+
+        let mediaArr = referenced_tweet?.includes?.media || []
+        if (tweet?.includes?.media) {
+          console.log(tweet.includes)
+          mediaArr = tweet.includes.media
+        } else if (referenced_tweet?.includes?.media) {
+          mediaArr = referenced_tweet.includes.media;
+        } else {
+          mediaArr = []
+        }
 
         const messageObject = {
           tweetId,
@@ -141,7 +152,9 @@ async function listenOnStream() {
         if (replyGate && author_id != botId) {
           console.log(tweet);
           let bufferObject;
+          // @ts-ignore
           if (mediaArr && !saveGif) {
+            // @ts-ignore
             bufferObject = await createImageBuffer(mediaArr);
           } else if (repliedToTweets && !saveGif) {
             const repliedToTweetsWithMedia = await fetchTweet(

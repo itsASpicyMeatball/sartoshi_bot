@@ -78,15 +78,15 @@ function listenOnStream() {
             add: streamRuleObjs,
         });
         const stream = yield client.v2.searchStream({
-            "tweet.fields": ["referenced_tweets", "author_id"],
+            "tweet.fields": ["referenced_tweets", "author_id", "attachments"],
             expansions: ["referenced_tweets.id", "attachments.media_keys"],
-            "media.fields": ["url"],
+            "media.fields": ["url", "media_key", "type"],
         });
         // Enable auto reconnect
         stream.autoReconnect = true;
         stream
             .on("data event content", (tweet) => __awaiter(this, void 0, void 0, function* () {
-            var _b, _c;
+            var _b, _c, _d, _e, _f, _g, _h;
             try {
                 const optInText = "hop in mfer";
                 const optOutText = "hop out mfer";
@@ -129,8 +129,20 @@ function listenOnStream() {
                 let imageUrl;
                 //if mferfy is in the statement then go ahead and let them mferfy. they don't have to me in the database
                 let replyGate = mferfy || saveGif || isGmMfer;
-                const tweetId = tweet.data.id;
-                const mediaArr = tweet.includes ? tweet.includes.media : [];
+                const tweetId = (_c = tweet === null || tweet === void 0 ? void 0 : tweet.data) === null || _c === void 0 ? void 0 : _c.id;
+                const referenced_tweet_id = (_d = tweet.data) === null || _d === void 0 ? void 0 : _d.referenced_tweets[0].id;
+                const referenced_tweet = yield fetchTweet(referenced_tweet_id);
+                let mediaArr = ((_e = referenced_tweet === null || referenced_tweet === void 0 ? void 0 : referenced_tweet.includes) === null || _e === void 0 ? void 0 : _e.media) || [];
+                if ((_f = tweet === null || tweet === void 0 ? void 0 : tweet.includes) === null || _f === void 0 ? void 0 : _f.media) {
+                    console.log(tweet.includes);
+                    mediaArr = tweet.includes.media;
+                }
+                else if ((_g = referenced_tweet === null || referenced_tweet === void 0 ? void 0 : referenced_tweet.includes) === null || _g === void 0 ? void 0 : _g.media) {
+                    mediaArr = referenced_tweet.includes.media;
+                }
+                else {
+                    mediaArr = [];
+                }
                 const messageObject = {
                     tweetId,
                     finalPhrase,
@@ -143,12 +155,14 @@ function listenOnStream() {
                 if (replyGate && author_id != botId) {
                     console.log(tweet);
                     let bufferObject;
+                    // @ts-ignore
                     if (mediaArr && !saveGif) {
+                        // @ts-ignore
                         bufferObject = yield createImageBuffer(mediaArr);
                     }
                     else if (repliedToTweets && !saveGif) {
                         const repliedToTweetsWithMedia = yield fetchTweet(repliedToTweets[0].id);
-                        const media = (_c = repliedToTweetsWithMedia === null || repliedToTweetsWithMedia === void 0 ? void 0 : repliedToTweetsWithMedia.includes) === null || _c === void 0 ? void 0 : _c.media;
+                        const media = (_h = repliedToTweetsWithMedia === null || repliedToTweetsWithMedia === void 0 ? void 0 : repliedToTweetsWithMedia.includes) === null || _h === void 0 ? void 0 : _h.media;
                         bufferObject = media ? yield createImageBuffer(media) : {};
                     }
                     messageObject.imageBuffer = bufferObject === null || bufferObject === void 0 ? void 0 : bufferObject.imageBuffer;
