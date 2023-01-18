@@ -86,7 +86,7 @@ function listenOnStream() {
         stream.autoReconnect = true;
         stream
             .on("data event content", (tweet) => __awaiter(this, void 0, void 0, function* () {
-            var _b, _c, _d, _e, _f, _g, _h;
+            var _b, _c, _d, _e, _f, _g, _h, _j, _k;
             try {
                 const optInText = "hop in mfer";
                 const optOutText = "hop out mfer";
@@ -130,15 +130,19 @@ function listenOnStream() {
                 //if mferfy is in the statement then go ahead and let them mferfy. they don't have to me in the database
                 let replyGate = mferfy || saveGif || isGmMfer;
                 const tweetId = (_c = tweet === null || tweet === void 0 ? void 0 : tweet.data) === null || _c === void 0 ? void 0 : _c.id;
-                const referenced_tweet_id = (_d = tweet.data) === null || _d === void 0 ? void 0 : _d.referenced_tweets[0].id;
-                const referenced_tweet = yield fetchTweet(referenced_tweet_id);
+                console.log("banana");
+                console.log(tweet.data.referenced_tweet);
+                const referenced_tweets = (_d = tweet === null || tweet === void 0 ? void 0 : tweet.data) === null || _d === void 0 ? void 0 : _d.referenced_tweets;
+                const referenced_tweet_id = referenced_tweets
+                    ? referenced_tweets[0].id
+                    : false;
+                const referenced_tweet = referenced_tweet_id ? yield fetchTweet(referenced_tweet_id) : false;
                 let mediaArr = ((_e = referenced_tweet === null || referenced_tweet === void 0 ? void 0 : referenced_tweet.includes) === null || _e === void 0 ? void 0 : _e.media) || [];
                 if ((_f = tweet === null || tweet === void 0 ? void 0 : tweet.includes) === null || _f === void 0 ? void 0 : _f.media) {
-                    console.log(tweet.includes);
-                    mediaArr = tweet.includes.media;
+                    mediaArr = (_g = tweet === null || tweet === void 0 ? void 0 : tweet.includes) === null || _g === void 0 ? void 0 : _g.media;
                 }
-                else if ((_g = referenced_tweet === null || referenced_tweet === void 0 ? void 0 : referenced_tweet.includes) === null || _g === void 0 ? void 0 : _g.media) {
-                    mediaArr = referenced_tweet.includes.media;
+                else if ((_h = referenced_tweet === null || referenced_tweet === void 0 ? void 0 : referenced_tweet.includes) === null || _h === void 0 ? void 0 : _h.media) {
+                    mediaArr = (_j = referenced_tweet === null || referenced_tweet === void 0 ? void 0 : referenced_tweet.includes) === null || _j === void 0 ? void 0 : _j.media;
                 }
                 else {
                     mediaArr = [];
@@ -162,7 +166,7 @@ function listenOnStream() {
                     }
                     else if (repliedToTweets && !saveGif) {
                         const repliedToTweetsWithMedia = yield fetchTweet(repliedToTweets[0].id);
-                        const media = (_h = repliedToTweetsWithMedia === null || repliedToTweetsWithMedia === void 0 ? void 0 : repliedToTweetsWithMedia.includes) === null || _h === void 0 ? void 0 : _h.media;
+                        const media = (_k = repliedToTweetsWithMedia === null || repliedToTweetsWithMedia === void 0 ? void 0 : repliedToTweetsWithMedia.includes) === null || _k === void 0 ? void 0 : _k.media;
                         bufferObject = media ? yield createImageBuffer(media) : {};
                     }
                     messageObject.imageBuffer = bufferObject === null || bufferObject === void 0 ? void 0 : bufferObject.imageBuffer;

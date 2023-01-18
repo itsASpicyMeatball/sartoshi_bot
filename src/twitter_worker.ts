@@ -126,15 +126,18 @@ async function listenOnStream() {
         //if mferfy is in the statement then go ahead and let them mferfy. they don't have to me in the database
         let replyGate = mferfy || saveGif || isGmMfer;
         const tweetId = tweet?.data?.id;
-        const referenced_tweet_id = tweet.data?.referenced_tweets[0].id
-        const referenced_tweet = await fetchTweet(referenced_tweet_id);
-
+        console.log("banana")
+        console.log(tweet.data.referenced_tweet)
+        const referenced_tweets = tweet?.data?.referenced_tweets;
+        const referenced_tweet_id = referenced_tweets
+          ? referenced_tweets[0].id
+          : false;
+        const referenced_tweet = referenced_tweet_id ? await fetchTweet(referenced_tweet_id) : false;
         let mediaArr = referenced_tweet?.includes?.media || []
         if (tweet?.includes?.media) {
-          console.log(tweet.includes)
-          mediaArr = tweet.includes.media
+          mediaArr = tweet?.includes?.media
         } else if (referenced_tweet?.includes?.media) {
-          mediaArr = referenced_tweet.includes.media;
+          mediaArr = referenced_tweet?.includes?.media;
         } else {
           mediaArr = []
         }
