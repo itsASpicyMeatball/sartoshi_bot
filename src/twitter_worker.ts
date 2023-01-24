@@ -5,7 +5,14 @@ const client = auth();
 
 import { parentPort } from "worker_threads";
 
-const PHRASES = ["hop in mfer", "hop out mfer", "gm mfer", "gmfer", "mferfy", "savemfergif"];
+const PHRASES = [
+  "hop in mfer",
+  "hop out mfer",
+  "gm mfer sartoshibot",
+  "gmfer sartoshibot",
+  "mferfy",
+  "savemfergif",
+];
 let timeout = 0;
 
 function returnPhrase(currentTweetObj: any) {
